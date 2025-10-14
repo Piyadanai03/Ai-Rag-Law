@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบถาม-ตอบกฎหมายทั่วไปและครอบครัว</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="min-h-screen transition-colors duration-300">
+    <!-- Theme Toggle Button -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="toggleTheme()" id="theme-toggle" 
+                class="theme-toggle-btn p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110">
+            <i id="theme-icon" class="fas fa-moon text-lg"></i>
+        </button>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Animated Background -->
+    <div class="bg-decoration">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="mb-6 sm:mb-10 text-center fade-in">
+            <div class="flex items-center justify-center mb-3 sm:mb-4">
+                <i class="fas fa-balance-scale text-3xl sm:text-4xl mr-2 sm:mr-3 icon-bounce"
+                    style="color: #ec4899;"></i>
+                <h1 class="text-2xl sm:text-3xl font-bold gradient-text font-['Kanit']">
+                    ระบบถาม-ตอบกฎหมายทั่วไปและครอบครัว</h1>
+            </div>
+            <p class="text-sm sm:text-base text-content max-w-2xl mx-auto leading-relaxed">
+                สอบถามข้อสงสัยเกี่ยวกับกฎหมายทั่วไปและกฎหมายครอบครัวไทย
+                <br>พร้อมคำตอบที่ถูกต้องและเข้าใจง่าย
+            </p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="glass-card-dark rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden slide-up hover-lift">
+            <!-- Question Input -->
+            <div class="p-4 sm:p-6 border-b border-separator">
+                <div class="flex items-start space-x-2 sm:space-x-3">
+                    <div class="flex-shrink-0 hidden sm:block">
+                        <div
+                            class="h-12 w-12 rounded-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-question text-pink-600 icon-pulse text-lg"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <label for="question" class="block text-sm font-semibold text-content mb-3 font-['Kanit']">
+                            <i class="fas fa-edit mr-2 text-pink-500"></i>คำถามของคุณ
+                        </label>
+                        <textarea id="question" rows="4"
+                            class="form-input shadow-lg focus:ring-pink-500 focus:border-pink-500 block w-full sm:text-sm rounded-xl p-4 border-0 resize-none"
+                            placeholder="เช่น: การจดทะเบียนสมรสต้องทำอย่างไร? หรือ การรับรองบุตรต้องมีเงื่อนไขอย่างไร?..."></textarea>
+                        <div class="mt-4 sm:mt-5 flex justify-end">
+                            <button onclick="askQuestion()" id="ask-button"
+                                class="btn-primary w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border-0 text-sm font-semibold rounded-xl shadow-lg text-white focus:outline-none focus:ring-4 focus:ring-pink-300 transition-all duration-200">
+                                <i class="fas fa-paper-plane mr-2"></i> ส่งคำถาม
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Answer Display -->
+            <div id="answer-container" class="p-4 sm:p-6 hidden answer-appear">
+                <div class="flex items-start space-x-2 sm:space-x-3">
+                    <div class="flex-shrink-0">
+                        <div
+                            class="h-12 w-12 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-gavel text-purple-600 text-lg"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg font-semibold text-content mb-3 font-['Kanit']">
+                            <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>คำตอบ:
+                        </h3>
+                        <div id="answer"
+                            class="answer-box p-5 rounded-xl text-content leading-relaxed shadow-inner border border-separator">
+                        </div>
+                        <div id="loading" class="hidden mt-4">
+                            <div class="flex items-center text-content loading-box p-4 rounded-xl shadow-lg">
+                                <div class="typing-dots mr-3">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                                <span class="font-medium">ระบบกำลังค้นหาคำตอบ โปรดรอสักครู่</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sample Questions -->
+            <div class="sample-questions-bg p-4 sm:p-6 border-t border-separator">
+                <h3
+                    class="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4 font-['Kanit'] flex items-center">
+                    <i class="fas fa-list-ul mr-2 text-pink-500"></i>
+                    คำถามตัวอย่าง
+                </h3>
+                <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                    <button onclick="fillQuestion(this)"
+                        class="btn-sample text-left px-4 py-3 rounded-xl shadow-md text-sm font-medium text-content transition-all duration-200 hover-lift">
+                        <i class="fas fa-heart mr-3 text-pink-500"></i> การจดทะเบียนสมรสต้องมีเงื่อนไขอย่างไร?
+                    </button>
+                    <button onclick="fillQuestion(this)"
+                        class="btn-sample text-left px-4 py-3 rounded-xl shadow-md text-sm font-medium text-content transition-all duration-200 hover-lift">
+                        <i class="fas fa-baby mr-3 text-blue-500"></i> การรับรองบุตรต้องทำอย่างไร?
+                    </button>
+                    <button onclick="fillQuestion(this)"
+                        class="btn-sample text-left px-4 py-3 rounded-xl shadow-md text-sm font-medium text-content transition-all duration-200 hover-lift">
+                        <i class="fas fa-users mr-3 text-purple-500"></i> การหย่าต้องทำขั้นตอนอย่างไร?
+                    </button>
+                    <button onclick="fillQuestion(this)"
+                        class="btn-sample text-left px-4 py-3 rounded-xl shadow-md text-sm font-medium text-content transition-all duration-200 hover-lift">
+                        <i class="fas fa-piggy-bank mr-3 text-green-500"></i> สิทธิในทรัพย์สินของคู่สมรสเป็นอย่างไร?
+                    </button>
+                    <button onclick="fillQuestion(this)"
+                        class="btn-sample text-left px-4 py-3 rounded-xl shadow-md text-sm font-medium text-content transition-all duration-200 hover-lift">
+                        <i class="fas fa-file-contract mr-3 text-indigo-500"></i> การทำพินัยกรรมต้องมีเงื่อนไขอย่างไร?
+                    </button>
+                    <button onclick="fillQuestion(this)"
+                        class="btn-sample text-left px-4 py-3 rounded-xl shadow-md text-sm font-medium text-content transition-all duration-200 hover-lift">
+                        <i class="fas fa-handshake mr-3 text-teal-500"></i>
+                        สิทธิและหน้าที่ของบิดามารดาต่อบุตรมีอะไรบ้าง?
+                    </button>
+                    <button onclick="fillQuestion(this)"
+                        class="btn-sample text-left px-4 py-3 rounded-xl shadow-md text-sm font-medium text-content transition-all duration-200 hover-lift">
+                        <i class="fas fa-home mr-3 text-orange-500"></i> การขอแยกทรัพย์สินต้องทำอย่างไร?
+                    </button>
+                    <button onclick="fillQuestion(this)"
+                        class="btn-sample text-left px-4 py-3 rounded-xl shadow-md text-sm font-medium text-content transition-all duration-200 hover-lift">
+                        <i class="fas fa-shield-alt mr-3 text-red-500"></i>
+                        การขอคุ้มครองจากความรุนแรงในครอบครัวต้องทำอย่างไร?
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-8 sm:mt-12 text-center text-xs sm:text-sm text-content-secondary scale-in">
+            <div class="glass-card rounded-xl p-4 sm:p-6 hover-lift">
+                <div class="flex items-center justify-center mb-2">
+                    <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                    <span class="font-semibold">ข้อควรระวัง</span>
+                </div>
+                <p class="leading-relaxed">
+                    ระบบนี้ให้ข้อมูลทางกฎหมายทั่วไปเท่านั้น ไม่ใช่คำแนะนำทางกฎหมาย
+                    <br>
+                    สำหรับกรณีเฉพาะ ควรปรึกษาทนายความหรือผู้เชี่ยวชาญ
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    // ===== Theme =====
+    let currentTheme = 'light';
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        currentTheme = savedTheme;
+        applyTheme(currentTheme);
+    }
+    function applyTheme(theme) {
+        const body = document.body;
+        const themeIcon = document.getElementById('theme-icon');
+        if (theme === 'dark') {
+            body.classList.add('dark-theme');
+            themeIcon.className = 'fas fa-sun text-lg';
+        } else {
+            body.classList.remove('dark-theme');
+            themeIcon.className = 'fas fa-moon text-lg';
+        }
+    }
+    function toggleTheme() {
+        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+        applyTheme(currentTheme);
+        localStorage.setItem('theme', currentTheme);
+    }
+    document.addEventListener('DOMContentLoaded', initTheme);
+
+    // ===== ตัวอย่างคำถาม =====
+    function fillQuestion(button) {
+        const questionText = button.textContent.trim();
+        document.getElementById('question').value = questionText;
+    }
+
+    // ===== ฟังก์ชันพิมพ์ทีละตัว =====
+    async function typeWriterEffect(element, text, speed = 20) {
+        element.innerHTML = "";
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i] === "\n" ? "<br>" : text[i];
+            element.innerHTML += char;
+            await new Promise(r => setTimeout(r, speed));
+        }
+    }
+
+    // ===== ส่งคำถามไป /query =====
+    async function askQuestion() {
+        const question = document.getElementById('question').value.trim();
+        if (!question) return alert('กรุณากรอกคำถามของคุณ');
+
+        const askButton = document.getElementById('ask-button');
+        const answerContainer = document.getElementById('answer-container');
+        const answerDiv = document.getElementById('answer');
+        const loadingDiv = document.getElementById('loading');
+
+        askButton.disabled = true;
+        askButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังประมวลผล';
+        askButton.classList.add('bg-pink-400');
+        answerContainer.classList.remove('hidden');
+        answerDiv.innerHTML = '';
+        loadingDiv.classList.remove('hidden');
+
+        try {
+            const response = await fetch('/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            });
+            if (!response.ok) throw new Error('ไม่สามารถเชื่อมต่อกับระบบได้');
+            const data = await response.json();
+
+            loadingDiv.classList.add('hidden');
+
+            // พิมพ์คำตอบแบบ typing effect
+            await typeWriterEffect(answerDiv, data.answer);
+
+            // เพิ่มช่องยืนยันติดต่อทนาย
+            answerDiv.innerHTML += `
+                <div class="mt-6 border-t border-separator pt-4">
+                    <label for="confirmInput" class="block text-sm font-semibold mb-2">
+                        <i class="fas fa-comments mr-2 text-pink-500"></i>ตอบกลับเพื่อยืนยันการติดต่อทนาย:
+                    </label>
+                    <div class="flex space-x-2">
+                        <input id="confirmInput" type="text" placeholder="พิมพ์ว่า ตกลงครับ / ไม่ครับ ..."
+                            class="flex-1 form-input rounded-xl p-3 shadow-inner focus:ring-pink-500 focus:border-pink-500">
+                        <button onclick="sendConfirm()"
+                            class="btn-primary px-5 py-3 rounded-xl shadow-lg text-white font-semibold">
+                            <i class="fas fa-check mr-2"></i> ส่ง
+                        </button>
+                    </div>
+                    <div id="confirmResult" class="mt-4 text-content font-medium"></div>
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('ข้อผิดพลาด:', error);
+            loadingDiv.classList.add('hidden');
+            answerDiv.innerHTML = '<p class="text-red-500">❌ ไม่สามารถเชื่อมต่อกับระบบได้ กรุณาลองใหม่ภายหลัง</p>';
+        } finally {
+            askButton.disabled = false;
+            askButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> ส่งคำถาม';
+            askButton.classList.remove('bg-pink-400');
+        }
+    }
+
+    // ===== ฟังก์ชันส่งข้อความยืนยัน /confirm =====
+    async function sendConfirm() {
+        const message = document.getElementById('confirmInput').value.trim();
+        const resultDiv = document.getElementById('confirmResult');
+        if (!message) return alert('กรุณากรอกข้อความก่อนส่ง');
+
+        resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin text-pink-500 mr-2"></i> กำลังวิเคราะห์...';
+
+        try {
+            const res = await fetch('/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.message) {
+                if (data.lawyer) {
+                    resultDiv.innerHTML = `
+                        <div class="p-4 rounded-xl border mt-2 bg-white/40 dark:bg-gray-800/40">
+                            <p class="text-green-600 font-semibold mb-2">${data.message}</p>
+                            <p><strong>ชื่อทนาย:</strong> ${data.lawyer.name}</p>
+                            <p><strong>เบอร์โทร:</strong> ${data.lawyer.phone}</p>
+                            <p><strong>Facebook:</strong> <a href="${data.lawyer.facebook}" target="_blank" class="text-blue-500 underline">เปิดลิงก์</a></p>
+                            <p><strong>LINE:</strong> <a href="${data.lawyer.line}" target="_blank" class="text-green-500 underline">เพิ่มเพื่อน</a></p>
+                            <p><strong>เว็บไซต์:</strong> <a href="${data.lawyer.web}" target="_blank" class="text-indigo-500 underline">เยี่ยมชม</a></p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="text-yellow-600 font-medium">${data.message}</p>`;
+                }
+            } else if (data.error) {
+                resultDiv.innerHTML = `<p class="text-red-500 font-medium">${data.error}</p>`;
+            } else {
+                resultDiv.innerHTML = `<p class="text-yellow-600 font-medium">${data.message}</p>`;
+            }
+        } catch (err) {
+            console.error(err);
+            resultDiv.innerHTML = '<p class="text-red-500 font-medium">❌ เกิดข้อผิดพลาดในการเชื่อมต่อ</p>';
+        }
+    }
+
+    // ===== Enter เพื่อส่งคำถาม =====
+    document.getElementById('question').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            askQuestion();
+        }
+    });
+</script>
+
+</body>
+
+</html>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* CSS Variables for theming */
+    :root {
+        --bg-primary: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+        --bg-glass: rgba(255, 255, 255, 0.8);
+        --bg-glass-dark: rgba(255, 255, 255, 0.95);
+        --text-primary: #374151;
+        --text-secondary: #6b7280;
+        --border-color: #f9a8d4;
+        --answer-bg: linear-gradient(135deg, #fdf2f8, #f3e8ff);
+        --sample-bg: linear-gradient(135deg, #fdf2f8, #f3e8ff);
+        --loading-bg: #ffffff;
+        --btn-sample: linear-gradient(135deg, #ffffff, #fdf2f8);
+    }
+
+    .dark-theme {
+        --bg-primary: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+        --bg-glass: rgba(31, 41, 55, 0.8);
+        --bg-glass-dark: rgba(31, 41, 55, 0.95);
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --border-color: #6b7280;
+        --answer-bg: linear-gradient(135deg, #374151, #4b5563);
+        --sample-bg: linear-gradient(135deg, #374151, #4b5563);
+        --loading-bg: #374151;
+        --btn-sample: linear-gradient(135deg, #4b5563, #6b7280);
+    }
+
+    body {
+        font-family: 'Sarabun', sans-serif;
+        background: var(--bg-primary);
+        background-attachment: fixed;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Theme toggle button */
+    .theme-toggle-btn {
+        background: var(--bg-glass-dark);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .theme-toggle-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+    }
+
+    /* Text colors */
+    .text-content {
+        color: var(--text-primary);
+    }
+
+    .text-content-secondary {
+        color: var(--text-secondary);
+    }
+
+    /* Border colors */
+    .border-separator {
+        border-color: var(--border-color);
+    }
+
+    /* Background elements */
+    .answer-box {
+        background: var(--answer-bg);
+        border-color: var(--border-color);
+    }
+
+    .sample-questions-bg {
+        background: var(--sample-bg);
+    }
+
+    .loading-box {
+        background: var(--loading-bg);
+    }
+
+    /* Animated Background Elements */
+    .bg-decoration {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .floating-shape {
+        position: absolute;
+        opacity: 0.1;
+        animation: float 20s infinite linear;
+    }
+
+    .dark-theme .floating-shape {
+        opacity: 0.05;
+    }
+
+    .floating-shape:nth-child(1) {
+        top: 10%;
+        left: 10%;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(45deg, #ec4899, #f472b6);
+        border-radius: 50%;
+        animation-delay: 0s;
+    }
+
+    .floating-shape:nth-child(2) {
+        top: 20%;
+        right: 15%;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(45deg, #a855f7, #c084fc);
+        border-radius: 20px;
+        animation-delay: -5s;
+    }
+
+    .floating-shape:nth-child(3) {
+        bottom: 30%;
+        left: 20%;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, #3b82f6, #60a5fa);
+        border-radius: 50%;
+        animation-delay: -10s;
+    }
+
+    .floating-shape:nth-child(4) {
+        bottom: 10%;
+        right: 25%;
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(45deg, #10b981, #34d399);
+        border-radius: 15px;
+        animation-delay: -15s;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        25% {
+            transform: translateY(-20px) rotate(90deg);
+        }
+
+        50% {
+            transform: translateY(-10px) rotate(180deg);
+        }
+
+        75% {
+            transform: translateY(-30px) rotate(270deg);
+        }
+
+        100% {
+            transform: translateY(0px) rotate(360deg);
+        }
+    }
+
+    /* Glass morphism effect */
+    .glass-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    }
+
+    .glass-card-dark {
+        background: var(--bg-glass-dark);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.15);
+    }
+
+    .dark-theme .glass-card,
+    .dark-theme .glass-card-dark {
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Enhanced animations */
+    .fade-in {
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    .slide-up {
+        animation: slideUp 0.6s ease-out;
+    }
+
+    .scale-in {
+        animation: scaleIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Enhanced buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #ec4899, #f472b6);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);
+    }
+
+    .btn-sample {
+        background: var(--btn-sample);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .btn-sample::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #ec4899, #f472b6);
+        z-index: -1;
+        margin: -2px;
+        border-radius: inherit;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .btn-sample:hover::before {
+        opacity: 1;
+    }
+
+    .btn-sample:hover {
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+    }
+
+    /* Enhanced form elements */
+    .form-input {
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(236, 72, 153, 0.2);
+        transition: all 0.3s ease;
+        color: var(--text-primary);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .form-input:focus {
+        background: var(--bg-glass-dark);
+        border-color: #ec4899;
+        box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+    }
+
+    /* Icon animations */
+    .icon-bounce {
+        animation: iconBounce 2s infinite;
+    }
+
+    @keyframes iconBounce {
+
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+            transform: translateY(0);
+        }
+
+        40% {
+            transform: translateY(-10px);
+        }
+
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+
+    .icon-pulse {
+        animation: iconPulse 2s infinite;
+    }
+
+    @keyframes iconPulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #ec4899, #f472b6);
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #db2777, #ec4899);
+    }
+
+    .dark-theme ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Enhanced typing indicator */
+    .typing-dots {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .typing-dots span {
+        width: 6px;
+        height: 6px;
+        background: #ec4899;
+        border-radius: 50%;
+        margin: 0 2px;
+        animation: typingDots 1.4s infinite;
+    }
+
+    .typing-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typingDots {
+
+        0%,
+        60%,
+        100% {
+            transform: scale(1);
+            opacity: 0.7;
+        }
+
+        30% {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+    }
+
+    /* Answer container animation */
+    .answer-appear {
+        animation: answerAppear 0.8s ease-out;
+    }
+
+    @keyframes answerAppear {
+        0% {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* Header gradient text */
+    .gradient-text {
+        background: linear-gradient(135deg, #ec4899, #a855f7, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 200% 200%;
+        animation: gradientMove 4s ease infinite;
+    }
+
+    @keyframes gradientMove {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 640px) {
+        .floating-shape {
+            opacity: 0.05;
+        }
+
+        .glass-card {
+            backdrop-filter: blur(10px);
+        }
+
+        .dark-theme .floating-shape {
+            opacity: 0.02;
+        }
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(236, 72, 153, 0.3);
+        border-top: 2px solid #ec4899;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Hover effects for cards */
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark-theme .hover-lift:hover {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Notification styles */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .notification.show {
+        transform: translateX(0);
+    }
+
+    .notification.success {
+        background: linear-gradient(135deg, #10b981, #34d399);
+    }
+
+    .notification.warning {
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    }
+
+    .notification.error {
+        background: linear-gradient(135deg, #ef4444, #f87171);
+    }
+
+    /* Ripple effect */
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(236, 72, 153, 0.3);
+        transform: scale(0);
+        animation: rippleEffect 0.6s linear;
+    }
+
+    @keyframes rippleEffect {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    /* Dark theme specific adjustments */
+    .dark-theme .gradient-text {
+        background: linear-gradient(135deg, #f472b6, #c084fc, #60a5fa);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Theme transition */
+    * {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* Additional dark theme styles */
+    .dark-theme .icon-bounce {
+        filter: brightness(1.2);
+    }
+
+    .dark-theme .icon-pulse {
+        filter: brightness(1.2);
+    }
+
+    /* Improved button states for dark theme */
+    .dark-theme .btn-sample:hover {
+        background: linear-gradient(135deg, #ec4899, #f472b6);
+        color: white;
+    }
+
+    /* Enhanced focus states for accessibility */
+    .theme-toggle-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+    }
+
+    .btn-primary:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+    }
+
+    .btn-sample:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.3);
+    }
+
+    /* Smooth theme toggle animation */
+    .theme-toggle-btn {
+        animation: themeButtonFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes themeButtonFloat {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-3px);
+        }
+    }
+
+    /* Additional responsive improvements */
+    @media (max-width: 640px) {
+        .theme-toggle-btn {
+            top: 16px;
+            right: 16px;
+            padding: 10px;
+        }
+        
+        .theme-toggle-btn i {
+            font-size: 16px;
+        }
+    }
+</style>

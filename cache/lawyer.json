@@ -1,0 +1,58 @@
+[
+  {
+    "name": "ไพศาล",
+    "facebook": "https://www.facebook.com/paissan.soldier",
+    "line": "https://line.me/ti/p/~paissan.soldier",
+    "phone": "081-123-4567",
+    "web": "https://soldierthailand.com",
+    "expertise": "กฎหมายแพ่ง"
+  },
+  {
+    "name": "สมชาย",
+    "facebook": "https://www.facebook.com/somchai.lawyer",
+    "line": "https://line.me/ti/p/~somchai.lawyer",
+    "phone": "082-234-5678",
+    "web": "https://somchailaw.com",
+    "expertise": ["กฎหมายครอบครัว", "กฎหมายมรดก"]
+  },
+  {
+    "name": "วิไล",
+    "facebook": "https://www.facebook.com/wilai.familylaw",
+    "line": "https://line.me/ti/p/~wilai.familylaw",
+    "phone": "083-345-6789",
+    "web": "https://wilailawfirm.com",
+    "expertise": ["กฎหมายครอบครัว", "การหย่าร้าง"]
+  },
+  {
+    "name": "จารุวรรณ",
+    "facebook": "https://www.facebook.com/jaruwan.legal",
+    "line": "https://line.me/ti/p/~jaruwan.legal",
+    "phone": "084-456-7890",
+    "web": "https://jaruwanlaw.com",
+    "expertise": ["กฎหมายครอบครัว", "การเลี้ยงดูบุตร"]
+  },
+  {
+    "name": "ธนพล",
+    "facebook": "https://www.facebook.com/thanapon.law",
+    "line": "https://line.me/ti/p/~thanapon.law",
+    "phone": "085-567-8901",
+    "web": "https://thanaponlegal.com",
+    "expertise": ["กฎหมายครอบครัว", "การรับรองบุตร"]
+  },
+  {
+    "name": "สุดารัตน์",
+    "facebook": "https://www.facebook.com/sudarat.family",
+    "line": "https://line.me/ti/p/~sudarat.family",
+    "phone": "086-678-9012",
+    "web": "https://sudaratlawfirm.com",
+    "expertise": ["กฎหมายครอบครัว", "การแบ่งสินสมรส"]
+  },
+  {
+    "name": "ปรีชา",
+    "facebook": "https://www.facebook.com/preecha.lawyer",
+    "line": "https://line.me/ti/p/~preecha.lawyer",
+    "phone": "087-789-0123",
+    "web": "https://preechalaw.com",
+    "expertise": ["กฎหมายครอบครัว", "การยกเลิกการรับรองบุตร"]
+  }
+]
