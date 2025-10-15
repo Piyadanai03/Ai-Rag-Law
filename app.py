@@ -4,10 +4,14 @@ import faiss
 import torch
 import numpy as np
 import requests
+import io
+import pdfplumber
+from PIL import Image
+import pytesseract
 from typing import List
 from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session
 
 # ===== CONFIG =====
 OLLAMA_URL = "http://localhost:11434/api/generate"
@@ -18,7 +22,6 @@ FOLDER_LAWYER = ["lawyer"]
 
 INDEX_LAW = "embeddings/faiss_law.index"
 INDEX_LAWYER = "embeddings/faiss_lawyer.index"
-
 TEXTS_LAW = "cache/law.json"
 TEXTS_LAWYER = "cache/lawyer.json"
 
@@ -27,6 +30,8 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"🖥️ ใช้งานบน: {device.upper()}")
 
 app = Flask(__name__)
+app.secret_key = "supersecretkey"
+
 embedder = SentenceTransformer("intfloat/multilingual-e5-base")
 embedder.to(device)
 
@@ -35,35 +40,28 @@ law_texts, lawyer_texts = [], []
 law_index, lawyer_index = None, None
 lawyer_data = []
 
-# ===== LOAD FUNCTIONS =====
+
+# ===== UTILITIES =====
 def load_json_files(folder_paths: List[str]):
-    """โหลดไฟล์ JSON ทั้งหมดจากหลายโฟลเดอร์ และรวม list ข้างในให้อยู่ในลิสต์เดียว"""
     texts = []
     for folder in folder_paths:
         if not os.path.exists(folder):
             continue
-        json_files = [f for f in os.listdir(folder) if f.endswith(".json")]
-        for filename in tqdm(json_files, desc=f"📚 โหลด {folder}"):
-            path = os.path.join(folder, filename)
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
+        for f in os.listdir(folder):
+            if f.endswith(".json"):
+                with open(os.path.join(folder, f), "r", encoding="utf-8") as fp:
+                    data = json.load(fp)
                     if isinstance(data, list):
                         texts.extend(data)
                     else:
                         texts.append(data)
-            except Exception as e:
-                print(f"⚠️ อ่านไฟล์ {filename} ไม่ได้: {e}")
     return texts
 
 
-def embed_texts(texts: List[str], batch_size: int = 16):
-    """สร้าง embedding จากข้อความทั้งหมด"""
-    if not texts:
-        raise ValueError("❌ ไม่มีข้อความสำหรับสร้าง embeddings")
+def embed_texts(texts: List[str]):
     return embedder.encode(
         texts,
-        batch_size=batch_size,
+        batch_size=16,
         show_progress_bar=True,
         convert_to_numpy=True,
         normalize_embeddings=True,
@@ -72,126 +70,44 @@ def embed_texts(texts: List[str], batch_size: int = 16):
 
 
 def build_index(embeddings: np.ndarray):
-    """สร้างดัชนี FAISS รองรับทั้ง GPU และ CPU"""
-    print("📏 Embedding shape:", np.shape(embeddings))
-    if embeddings is None or len(embeddings) == 0:
-        raise ValueError("❌ ไม่มี embeddings สำหรับสร้างดัชนี (index)")
-
-    # สร้าง index แบบ Inner Product (เหมาะกับ cosine similarity)
     index = faiss.IndexFlatIP(embeddings.shape[1])
-
-    # ✅ ตรวจว่ามี GPU ของ FAISS ให้ใช้หรือไม่ (Windows ไม่มี)
-    if device == "cuda" and hasattr(faiss, "StandardGpuResources"):
-        try:
-            print("⚡ ใช้งาน FAISS GPU acceleration")
-            res = faiss.StandardGpuResources()
-            index = faiss.index_cpu_to_gpu(res, 0, index)
-        except Exception as e:
-            print(f"⚠️ ไม่สามารถใช้ GPU ได้: {e} → ใช้ CPU แทน")
-    else:
-        print("🧠 ใช้งาน FAISS CPU")
-
     index.add(embeddings)
     return index
 
 
-def search_similar(query: str, texts: List[str], index, top_k=5, threshold=0.5):
-    """ค้นหาข้อความที่ใกล้เคียงที่สุด"""
-    query_emb = embedder.encode([query], convert_to_numpy=True, normalize_embeddings=True, device=device)
-    scores, indices = index.search(query_emb, top_k)
-    results = []
-    for idx, i in enumerate(indices[0]):
-        score = scores[0][idx]
-        if score >= threshold:
-            results.append((texts[i], float(score)))
-    return results if results else [(texts[i], float(scores[0][idx])) for idx, i in enumerate(indices[0])]
+def search_similar(query: str, texts: List[str], index, top_k=5):
+    q_emb = embedder.encode([query], convert_to_numpy=True, normalize_embeddings=True, device=device)
+    scores, ids = index.search(q_emb, top_k)
+    return [(texts[i], float(scores[0][idx])) for idx, i in enumerate(ids[0])]
 
 
-# ===== BUILD KNOWLEDGE =====
-def build_law_dataset():
-    """โหลดและสร้าง embedding สำหรับกฎหมาย"""
-    law_data = load_json_files(FOLDER_LAW)
-    law_texts = []
-    for d in law_data:
-        if isinstance(d, dict) and "section_content" in d and "law_name" in d:
-            law_texts.append(f"{d['law_name']} มาตรา {d['section_num']}:\n{d['section_content']}")
-    if not law_texts:
-        raise ValueError("❌ ไม่มีข้อมูลกฎหมายในไฟล์ (law_texts ว่าง)")
-    print(f"✅ พบ {len(law_texts)} มาตราในการสร้าง embedding")
-    emb = embed_texts(law_texts)
-    index = build_index(emb)
-    return law_texts, index
+def extract_text_from_pdf(file_bytes):
+    text = ""
+    with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text() or ""
+    return text.strip()
 
 
-def build_lawyer_dataset():
-    """โหลดและสร้าง embedding สำหรับข้อมูลทนาย"""
-    lawyer_data = load_json_files(FOLDER_LAWYER)
-    lawyer_texts = []
-    for l in lawyer_data:
-        if "name" in l and "expertise" in l:
-            lawyer_texts.append(f"{l['name']} - ความเชี่ยวชาญ: {', '.join(l['expertise'])}")
-    if not lawyer_texts:
-        raise ValueError("❌ ไม่มีข้อมูลทนายในไฟล์ (lawyer_texts ว่าง)")
-    print(f"✅ พบ {len(lawyer_texts)} ทนายในการสร้าง embedding")
-    emb = embed_texts(lawyer_texts)
-    index = build_index(emb)
-    return lawyer_data, lawyer_texts, index
-
-
-# ===== AI UTILITIES =====
-def generate_answer(context: str, lawyers: List[dict], query: str):
-    """เรียก Ollama เพื่อสร้างคำตอบ"""
-    lawyer_suggestions = "\n".join([
-        f"- {l['name']} ({', '.join(l['expertise'])})" for l in lawyers
-    ])
-    prompt = f"""
-คุณคือผู้เชี่ยวชาญด้านกฎหมายที่สามารถอธิบายข้อกฎหมายให้เข้าใจง่าย
-
-คำถาม: {query}
-
-บริบทกฎหมายที่เกี่ยวข้อง:
-{context}
-
-ทนายที่เชี่ยวชาญในเรื่องนี้:
-{lawyer_suggestions}
-
-กรุณาตอบโดย:
-1. อธิบายให้เข้าใจง่าย
-2. อ้างอิงมาตราที่เกี่ยวข้อง
-3. ยกตัวอย่างประกอบ (ถ้ามี)
-4. ปิดท้ายด้วยข้อความ “คุณต้องการติดต่อทนายไหม”
-"""
-    res = requests.post(OLLAMA_URL, json={
-        "model": OLLAMA_MODEL,
-        "prompt": prompt,
-        "stream": False
-    })
-    return res.json().get("response", "").strip()
+def extract_text_from_image(file_bytes):
+    img = Image.open(io.BytesIO(file_bytes))
+    return pytesseract.image_to_string(img, lang="tha+eng").strip()
 
 
 def is_positive_reply(message: str) -> bool:
-    """วิเคราะห์ว่าผู้ใช้ยินยอมติดต่อทนายหรือไม่"""
     text = message.strip().lower()
+    positive = ["ตกลง", "โอเค", "ได้", "ครับ", "ค่ะ", "ยินยอม", "yes", "ok", "agree"]
+    negative = ["ไม่", "no", "ยัง", "ไม่ตกลง", "ไม่ครับ", "ไม่ค่ะ"]
 
-    positive_keywords = ["ตกลง", "โอเค", "ได้", "ครับ", "ค่ะ", "เห็นด้วย", "ยินยอม", "yes", "ok", "agree"]
-    negative_keywords = ["ไม่", "no", "ยัง", "ปฏิเสธ", "ไม่ตกลง", "ไม่ครับ", "ไม่ค่ะ"]
-
-    # ถ้ามีคำว่า "ไม่" อยู่ก่อนคำยินยอม เช่น "ไม่ตกลง" หรือ "ยังไม่"
-    if any(neg in text for neg in negative_keywords):
+    if any(n in text for n in negative):
         return False
-
-    if any(pos in text for pos in positive_keywords):
+    if any(p in text for p in positive):
         return True
 
-    # ✅ 2. ถ้าไม่ชัดเจน → ใช้ Ollama วิเคราะห์ต่อ
     prompt = f"""
-จงวิเคราะห์ว่า ข้อความต่อไปนี้สื่อถึงการ 'ตกลง' หรือ 'ยินยอม' หรือไม่
-
+วิเคราะห์ว่า ข้อความนี้แปลว่า 'ตกลง' หรือ 'ยินยอม' หรือไม่
 ข้อความ: "{message}"
-
-ให้ตอบเพียงคำเดียว:
-- ถ้าใช่ ตอบว่า TRUE
-- ถ้าไม่ใช่ ตอบว่า FALSE
+ตอบ TRUE หรือ FALSE เท่านั้น
 """
     try:
         res = requests.post(OLLAMA_URL, json={
@@ -200,11 +116,26 @@ def is_positive_reply(message: str) -> bool:
             "stream": False
         })
         reply = res.json().get("response", "").strip().lower()
-        print(f"🤖 วิเคราะห์โดย AI: {reply}")
         return "true" in reply
-    except Exception as e:
-        print("❌ ตรวจวิเคราะห์ไม่ได้:", e)
+    except:
         return False
+
+
+# ===== BUILD DATASET =====
+def build_law_dataset():
+    data = load_json_files(FOLDER_LAW)
+    texts = [f"{d['law_name']} มาตรา {d['section_num']}: {d['section_content']}"
+             for d in data if "law_name" in d and "section_content" in d]
+    emb = embed_texts(texts)
+    return texts, build_index(emb)
+
+
+def build_lawyer_dataset():
+    data = load_json_files(FOLDER_LAWYER)
+    texts = [f"{l['name']} - ความเชี่ยวชาญ: {', '.join(l['expertise'])}"
+             for l in data if "name" in l and "expertise" in l]
+    emb = embed_texts(texts)
+    return data, texts, build_index(emb)
 
 
 # ===== ROUTES =====
@@ -213,56 +144,100 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/query", methods=["POST"])
-def query():
-    global lawyer_data
+@app.route("/chat", methods=["POST"])
+def chat():
+    """
+    แชทรวม:
+    - ถ้ามีไฟล์ → สรุป + เก็บใน session
+    - ถ้าเป็นข้อความ → ใช้ context + RAG + AI ตอบ
+    """
+    # ==== อัปโหลดไฟล์ ====
+    if "file" in request.files:
+        f = request.files["file"]
+        name = f.filename.lower()
+        fb = f.read()
+
+        if name.endswith(".pdf"):
+            text = extract_text_from_pdf(fb)
+        elif name.endswith((".png", ".jpg", ".jpeg")):
+            text = extract_text_from_image(fb)
+        else:
+            return jsonify({"error": "⚠️ รองรับเฉพาะ PDF หรือรูปภาพเท่านั้น"}), 400
+
+        if not text:
+            return jsonify({"error": "⚠️ ไม่พบข้อความในไฟล์"}), 400
+
+        prompt = f"สรุปเอกสารต่อไปนี้ให้เข้าใจง่ายและแก้คำให้ถูกต้องสมเหตุสมผล:\n{text[:5000]}"
+        res = requests.post(OLLAMA_URL, json={"model": OLLAMA_MODEL, "prompt": prompt, "stream": False})
+        summary = res.json().get("response", "").strip()
+        session["chat_context"] = summary
+
+        return jsonify({"type": "summary", "message": summary})
+
+    # ==== ข้อความ ====
     data = request.get_json()
-    question = data.get("question", "").strip()
-    if not question:
-        return jsonify({"error": "❌ โปรดระบุคำถาม"}), 400
+    msg = data.get("message", "").strip()
+    if not msg:
+        return jsonify({"error": "❌ โปรดพิมพ์คำถาม"}), 400
 
-    # 1️⃣ หา context กฎหมาย
-    contexts = search_similar(question, law_texts, law_index)
-    context_text = "\n\n".join([t for t, _ in contexts])
+    # ตรวจว่าเป็นคำตอบยืนยันไหม
+    if session.get("awaiting_confirm"):
+        session["awaiting_confirm"] = False
+        if is_positive_reply(msg):
+            if "last_lawyer" in session:
+                return jsonify({
+                    "type": "lawyer",
+                    "message": "📞 ข้อมูลติดต่อทนาย",
+                    "lawyer": session["last_lawyer"]
+                })
+            else:
+                return jsonify({"type": "text", "message": "❌ ไม่มีข้อมูลทนายล่าสุด"})
+        else:
+            return jsonify({"type": "text", "message": "โอเค หวังว่าคำตอบจะช่วยให้การตัดสินใจได้ง่ายขึ้น"})
 
-    # 2️⃣ หา lawyer ที่เกี่ยวข้อง
-    lawyer_matches = search_similar(question, [t for t in lawyer_texts], lawyer_index, top_k=3)
+    # ===== ค้นหากฎหมาย =====
+    rag_contexts = search_similar(msg, law_texts, law_index)
+    law_context = "\n\n".join([t for t, _ in rag_contexts])
+
+    # ===== ค้นหาทนายที่เกี่ยวข้อง =====
+    lawyer_matches = search_similar(msg, lawyer_texts, lawyer_index, top_k=3)
     related_lawyers = []
     for text, _ in lawyer_matches:
         for l in lawyer_data:
             if l["name"] in text:
                 related_lawyers.append(l)
-
-    # 3️⃣ จำทนายล่าสุดไว้
     if related_lawyers:
-        app.config["last_lawyer"] = related_lawyers[0]
+        session["last_lawyer"] = related_lawyers[0]
 
-    # 4️⃣ ให้ AI ตอบ
-    answer = generate_answer(context_text, related_lawyers, question)
+    # ===== รวม context ทั้งหมด =====
+    user_context = session.get("chat_context", "")
+    full_context = f"{user_context}\n\n{law_context}" if user_context else law_context
+
+    # ===== ให้ AI ตอบ =====
+    lawyer_suggestions = "\n".join([f"- {l['name']} ({', '.join(l['expertise'])})" for l in related_lawyers])
+    prompt = f"""
+คุณคือผู้เชี่ยวชาญด้านกฎหมายที่สามารถอธิบายข้อกฎหมายให้เข้าใจง่าย
+คำถาม: {msg}
+
+บริบท:
+{full_context}
+
+ทนายที่เกี่ยวข้อง:
+{lawyer_suggestions}
+
+กรุณาตอบให้เข้าใจง่าย และอ้างอิงมาตราที่เกี่ยวข้อง พร้อมยกตัวอย่างประกอบ (ถ้ามี) 
+และลงท้ายด้วยคำว่า
+"คุณต้องการติดต่อทนายไหม?"
+"""
+    res = requests.post(OLLAMA_URL, json={"model": OLLAMA_MODEL, "prompt": prompt, "stream": False})
+    answer = res.json().get("response", "").strip()
+    session["awaiting_confirm"] = True
 
     return jsonify({
-        "answer": answer,
-        "context": context_text,
+        "type": "answer",
+        "message": answer,
         "lawyers": related_lawyers
     })
-
-
-@app.route("/confirm", methods=["POST"])
-def confirm_contact():
-    """Route สำหรับยืนยันการติดต่อทนาย (AI วิเคราะห์เอง)"""
-    data = request.get_json()
-    message = data.get("message", "").strip()
-    if not message:
-        return jsonify({"error": "❌ โปรดพิมพ์ข้อความ"}), 400
-    if is_positive_reply(message):
-        if "last_lawyer" not in app.config:
-            return jsonify({"error": "❌ ไม่มีข้อมูลทนายล่าสุด"}), 400
-        return jsonify({
-            "message": "📞 ข้อมูลติดต่อทนาย",
-            "lawyer": app.config["last_lawyer"]
-        })
-    else:
-        return jsonify({"message": "โอเค หวังว่าคำตอบจะช่วยให้การตัดสินใจได้ง่ายมากขึ้น"}), 200
 
 
 # ===== MAIN =====
@@ -270,9 +245,7 @@ if __name__ == "__main__":
     os.makedirs("cache", exist_ok=True)
     os.makedirs("embeddings", exist_ok=True)
 
-    # โหลดหรือสร้างข้อมูลกฎหมาย
-    if os.path.exists(TEXTS_LAW) and os.path.exists(INDEX_LAW):
-        print("📂 โหลดกฎหมายจากแคช")
+    if os.path.exists(TEXTS_LAW):
         with open(TEXTS_LAW, "r", encoding="utf-8") as f:
             law_texts = json.load(f)
         law_index = faiss.read_index(INDEX_LAW)
@@ -282,9 +255,7 @@ if __name__ == "__main__":
         with open(TEXTS_LAW, "w", encoding="utf-8") as f:
             json.dump(law_texts, f, ensure_ascii=False)
 
-    # โหลดหรือสร้างข้อมูลทนาย
-    if os.path.exists(TEXTS_LAWYER) and os.path.exists(INDEX_LAWYER):
-        print("📂 โหลดทนายจากแคช")
+    if os.path.exists(TEXTS_LAWYER):
         with open(TEXTS_LAWYER, "r", encoding="utf-8") as f:
             lawyer_data = json.load(f)
         lawyer_texts = [f"{d['name']} - ความเชี่ยวชาญ: {', '.join(d['expertise'])}" for d in lawyer_data]
@@ -295,5 +266,5 @@ if __name__ == "__main__":
         with open(TEXTS_LAWYER, "w", encoding="utf-8") as f:
             json.dump(lawyer_data, f, ensure_ascii=False)
 
-    print("\n🎯 ระบบ RAG กฎหมาย + ทนาย (AI ยืนยันการติดต่อ) พร้อมใช้งาน!")
+    print("🎯 ระบบแชทกฎหมายพร้อมใช้งานแล้ว")
     app.run(host="0.0.0.0", port=8000, debug=True)
