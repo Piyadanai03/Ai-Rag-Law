@@ -862,7 +862,7 @@
                 hideTyping();
                 
                 if (data.type === 'summary') {
-                    addMessage(`<div class="space-y-2"><div class="flex items-center mb-2 pb-2 border-b border-pink-200 dark:border-pink-800"><i class="fas fa-file-alt text-blue-500 text-lg mr-2"></i><b>สรุปเอกสาร</b></div><p>${data.message}</p></div>`);
+                    addMessage(`<div class="space-y-2"><div class="flex items-center mb-2 pb-2 border-b border-pink-200 dark:border-pink-800"><i class="fas fa-file-alt text-blue-500 text-lg mr-2"></i><b>สรุปเอกสาร</b></div><p>${data.summary}</p></div>`);
                 } else if (data.error) {
                     addMessage(`❌ ${data.error}`);
                 }

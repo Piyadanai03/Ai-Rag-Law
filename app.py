@@ -148,7 +148,7 @@ def home():
 def chat():
     """
     แชทรวม:
-    - ถ้ามีไฟล์ → สรุป + เก็บใน session
+    - ถ้ามีไฟล์ → แก้คำสะกดก่อน แล้วสรุป → เก็บใน session
     - ถ้าเป็นข้อความ → ใช้ context + RAG + AI ตอบ
     """
     # ==== อัปโหลดไฟล์ ====
@@ -157,6 +157,7 @@ def chat():
         name = f.filename.lower()
         fb = f.read()
 
+        # ดึงข้อความจาก PDF / รูปภาพ
         if name.endswith(".pdf"):
             text = extract_text_from_pdf(fb)
         elif name.endswith((".png", ".jpg", ".jpeg")):
@@ -167,12 +168,57 @@ def chat():
         if not text:
             return jsonify({"error": "⚠️ ไม่พบข้อความในไฟล์"}), 400
 
-        prompt = f"สรุปเอกสารต่อไปนี้ให้เข้าใจง่ายและแก้คำให้ถูกต้องสมเหตุสมผล:\n{text[:5000]}"
-        res = requests.post(OLLAMA_URL, json={"model": OLLAMA_MODEL, "prompt": prompt, "stream": False})
-        summary = res.json().get("response", "").strip()
+        # ===== ขั้นตอนที่ 1: แก้คำสะกด / เรียบเรียงใหม่ =====
+        prompt_correct = f"""
+คุณเป็นผู้เชี่ยวชาญด้านกฎหมายและภาษาไทย
+โปรดแก้ไขข้อความต่อไปนี้ให้:
+- สะกดคำและเว้นวรรคถูกต้องตามหลักภาษาไทย
+- ใช้ภาษาทางกฎหมายที่เป็นทางการ อ่านเข้าใจง่าย
+- ตรวจสอบคำที่อาจสะกดผิดจากการสแกน (OCR) เช่น 'โจรอก' → 'โจทก์', 'บรรลุนพันธุ์' → 'บรรลุนิติภาวะ'
+- ห้ามเพิ่มหรือลบเนื้อหาทางกฎหมาย
+- แสดงเฉพาะข้อความที่แก้ไขแล้วเท่านั้น โดยไม่ต้องใส่คำอธิบายหรือหัวข้อเพิ่มเติม
+
+ข้อความต้นฉบับ:
+{text[:5000]}
+"""
+        res_correct = requests.post(OLLAMA_URL, json={
+            "model": OLLAMA_MODEL,
+            "prompt": prompt_correct,
+            "stream": False
+        })
+        corrected_text = res_correct.json().get("response", "").strip()
+
+        # ===== ขั้นตอนที่ 2: สรุปจากเวอร์ชันที่แก้แล้ว =====
+        prompt_summary = f"""
+คุณเป็นผู้เชี่ยวชาญด้านกฎหมายครอบครัว
+โปรดสรุปข้อความต่อไปนี้ให้เข้าใจง่าย โดยแบ่งหัวข้อเป็น:
+- คู่กรณี
+- เหตุฟ้อง
+- คำขอท้ายฟ้อง
+
+ให้ใช้ภาษาทางกฎหมายที่เรียบง่าย เหมาะสำหรับประชาชนทั่วไป
+ห้ามสลับบทบาทของคู่กรณี (โจทก์เป็นฝ่ายหญิง, จำเลยเป็นฝ่ายชาย)
+แสดงเฉพาะเนื้อหาสรุปเท่านั้น ไม่ต้องใส่เลขลำดับหรือสัญลักษณ์พิเศษ
+
+ข้อความ (หลังแก้ไข):
+{corrected_text}
+"""
+        res_summary = requests.post(OLLAMA_URL, json={
+            "model": OLLAMA_MODEL,
+            "prompt": prompt_summary,
+            "stream": False
+        })
+        summary = res_summary.json().get("response", "").strip()
+
+        # เก็บเฉพาะสรุปไว้ใน session
         session["chat_context"] = summary
 
-        return jsonify({"type": "summary", "message": summary})
+        return jsonify({
+            "type": "summary",
+            "corrected": corrected_text,
+            "summary": summary,
+            "message": "✅ แก้คำสะกดและสรุปเรียบร้อยแล้ว"
+        })
 
     # ==== ข้อความ ====
     data = request.get_json()
@@ -209,12 +255,14 @@ def chat():
     if related_lawyers:
         session["last_lawyer"] = related_lawyers[0]
 
-    # ===== รวม context ทั้งหมด =====
+    # ===== รวม context =====
     user_context = session.get("chat_context", "")
     full_context = f"{user_context}\n\n{law_context}" if user_context else law_context
 
     # ===== ให้ AI ตอบ =====
-    lawyer_suggestions = "\n".join([f"- {l['name']} ({', '.join(l['expertise'])})" for l in related_lawyers])
+    lawyer_suggestions = "\n".join(
+        [f"- {l['name']} ({', '.join(l['expertise'])})" for l in related_lawyers]
+    )
     prompt = f"""
 คุณคือผู้เชี่ยวชาญด้านกฎหมายที่สามารถอธิบายข้อกฎหมายให้เข้าใจง่าย
 คำถาม: {msg}
@@ -225,11 +273,15 @@ def chat():
 ทนายที่เกี่ยวข้อง:
 {lawyer_suggestions}
 
-กรุณาตอบให้เข้าใจง่าย และอ้างอิงมาตราที่เกี่ยวข้อง พร้อมยกตัวอย่างประกอบ (ถ้ามี) 
+กรุณาตอบให้เข้าใจง่าย อ้างอิงมาตราที่เกี่ยวข้อง พร้อมยกตัวอย่างประกอบ (ถ้ามี)
 และลงท้ายด้วยคำว่า
 "คุณต้องการติดต่อทนายไหม?"
 """
-    res = requests.post(OLLAMA_URL, json={"model": OLLAMA_MODEL, "prompt": prompt, "stream": False})
+    res = requests.post(OLLAMA_URL, json={
+        "model": OLLAMA_MODEL,
+        "prompt": prompt,
+        "stream": False
+    })
     answer = res.json().get("response", "").strip()
     session["awaiting_confirm"] = True
 
