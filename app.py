@@ -9,13 +9,12 @@ import pdfplumber
 from PIL import Image
 import pytesseract
 from typing import List
-from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 from flask import Flask, request, jsonify, render_template, session
 
 # ===== CONFIG =====
-OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "llama3.2"
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434/api/generate")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL","llama3.2")
 
 FOLDER_LAW = ["data", "family"]
 FOLDER_LAWYER = ["lawyer"]
@@ -319,4 +318,4 @@ if __name__ == "__main__":
             json.dump(lawyer_data, f, ensure_ascii=False)
 
     print("🎯 ระบบแชทกฎหมายพร้อมใช้งานแล้ว")
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=False)
