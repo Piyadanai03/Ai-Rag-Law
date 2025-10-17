@@ -36,10 +36,10 @@
 
 1. รันแอปพลิเคชัน:
 ```bash
-python thai_law_rag.py
+python app.py
 ```
 
-2. เปิดเว็บบราวเซอร์ไปที่ http://localhost:5000
+2. เปิดเว็บบราวเซอร์ไปที่ http://localhost:8000
 
 ## วิธีใช้งาน
 
