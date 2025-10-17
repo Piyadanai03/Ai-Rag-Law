@@ -11,8 +11,14 @@
     />
   </head>
   <body class="h-screen overflow-hidden">
-    <!-- Theme Toggle -->
-    <div class="fixed top-4 right-4 z-50">
+    <!-- Theme Toggle and Info Buttons -->
+    <div class="fixed top-4 right-4 z-50 flex items-center space-x-2">
+      <button
+        onclick="showInfo()"
+        class="action-btn p-3 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-all hover-lift"
+      >
+        <i class="fas fa-info-circle text-xl"></i>
+      </button>
       <button
         onclick="toggleTheme()"
         id="theme-toggle"
@@ -50,12 +56,6 @@
             >พร้อมให้บริการตลอด 24 ชั่วโมง
           </p>
         </div>
-        <button
-          onclick="showInfo()"
-          class="action-btn p-3 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-all hover-lift"
-        >
-          <i class="fas fa-info-circle text-xl"></i>
-        </button>
       </header>
 
       <!-- Chat Messages Area -->
