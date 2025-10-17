@@ -13,7 +13,7 @@ from sentence_transformers import SentenceTransformer
 from flask import Flask, request, jsonify, render_template, session
 
 # ===== CONFIG =====
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434/api/generate")
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL","llama3.2")
 
 FOLDER_LAW = ["data", "family"]
@@ -93,33 +93,6 @@ def extract_text_from_image(file_bytes):
     return pytesseract.image_to_string(img, lang="tha+eng").strip()
 
 
-def is_positive_reply(message: str) -> bool:
-    text = message.strip().lower()
-    positive = ["ตกลง", "โอเค", "ได้", "ครับ", "ค่ะ", "ยินยอม", "yes", "ok", "agree"]
-    negative = ["ไม่", "no", "ยัง", "ไม่ตกลง", "ไม่ครับ", "ไม่ค่ะ"]
-
-    if any(n in text for n in negative):
-        return False
-    if any(p in text for p in positive):
-        return True
-
-    prompt = f"""
-วิเคราะห์ว่า ข้อความนี้แปลว่า 'ตกลง' หรือ 'ยินยอม' หรือไม่
-ข้อความ: "{message}"
-ตอบ TRUE หรือ FALSE เท่านั้น
-"""
-    try:
-        res = requests.post(OLLAMA_URL, json={
-            "model": OLLAMA_MODEL,
-            "prompt": prompt,
-            "stream": False
-        })
-        reply = res.json().get("response", "").strip().lower()
-        return "true" in reply
-    except:
-        return False
-
-
 # ===== BUILD DATASET =====
 def build_law_dataset():
     data = load_json_files(FOLDER_LAW)
@@ -149,7 +122,20 @@ def chat():
     แชทรวม:
     - ถ้ามีไฟล์ → แก้คำสะกดก่อน แล้วสรุป → เก็บใน session
     - ถ้าเป็นข้อความ → ใช้ context + RAG + AI ตอบ
+    - ถ้าผู้ใช้กดปุ่ม "ติดต่อทนาย" → ส่ง action='get_lawyer'
     """
+
+    # ✅ ตรวจว่าเป็น action ขอข้อมูลทนายจากปุ่ม
+    if request.is_json:
+        data = request.get_json()
+        if data.get("action") == "get_lawyer":
+            lawyer = data.get("lawyer")
+            return jsonify({
+                "type": "lawyer",
+                "message": "📞 ข้อมูลติดต่อทนาย",
+                "lawyer": lawyer
+            })
+
     # ==== อัปโหลดไฟล์ ====
     if "file" in request.files:
         f = request.files["file"]
@@ -173,9 +159,8 @@ def chat():
 โปรดแก้ไขข้อความต่อไปนี้ให้:
 - สะกดคำและเว้นวรรคถูกต้องตามหลักภาษาไทย
 - ใช้ภาษาทางกฎหมายที่เป็นทางการ อ่านเข้าใจง่าย
-- ตรวจสอบคำที่อาจสะกดผิดจากการสแกน (OCR) เช่น 'โจรอก' → 'โจทก์', 'บรรลุนพันธุ์' → 'บรรลุนิติภาวะ'
+- ตรวจสอบคำที่อาจสะกดผิดจากการสแกน (OCR)
 - ห้ามเพิ่มหรือลบเนื้อหาทางกฎหมาย
-- แสดงเฉพาะข้อความที่แก้ไขแล้วเท่านั้น โดยไม่ต้องใส่คำอธิบายหรือหัวข้อเพิ่มเติม
 
 ข้อความต้นฉบับ:
 {text[:5000]}
@@ -225,21 +210,6 @@ def chat():
     if not msg:
         return jsonify({"error": "❌ โปรดพิมพ์คำถาม"}), 400
 
-    # ตรวจว่าเป็นคำตอบยืนยันไหม
-    if session.get("awaiting_confirm"):
-        session["awaiting_confirm"] = False
-        if is_positive_reply(msg):
-            if "last_lawyer" in session:
-                return jsonify({
-                    "type": "lawyer",
-                    "message": "📞 ข้อมูลติดต่อทนาย",
-                    "lawyer": session["last_lawyer"]
-                })
-            else:
-                return jsonify({"type": "text", "message": "❌ ไม่มีข้อมูลทนายล่าสุด"})
-        else:
-            return jsonify({"type": "text", "message": "โอเค หวังว่าคำตอบจะช่วยให้การตัดสินใจได้ง่ายขึ้น"})
-
     # ===== ค้นหากฎหมาย =====
     rag_contexts = search_similar(msg, law_texts, law_index)
     law_context = "\n\n".join([t for t, _ in rag_contexts])
@@ -251,6 +221,7 @@ def chat():
         for l in lawyer_data:
             if l["name"] in text:
                 related_lawyers.append(l)
+
     if related_lawyers:
         session["last_lawyer"] = related_lawyers[0]
 
@@ -258,10 +229,10 @@ def chat():
     user_context = session.get("chat_context", "")
     full_context = f"{user_context}\n\n{law_context}" if user_context else law_context
 
-    # ===== ให้ AI ตอบ =====
     lawyer_suggestions = "\n".join(
         [f"- {l['name']} ({', '.join(l['expertise'])})" for l in related_lawyers]
     )
+
     prompt = f"""
 คุณคือผู้เชี่ยวชาญด้านกฎหมายที่สามารถอธิบายข้อกฎหมายให้เข้าใจง่าย
 คำถาม: {msg}
@@ -282,7 +253,6 @@ def chat():
         "stream": False
     })
     answer = res.json().get("response", "").strip()
-    session["awaiting_confirm"] = True
 
     return jsonify({
         "type": "answer",

@@ -1,887 +1,1050 @@
 <!DOCTYPE html>
 <html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>แชทปรึกษากฎหมาย</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="h-screen overflow-hidden">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="h-screen overflow-hidden">
     <!-- Theme Toggle -->
     <div class="fixed top-4 right-4 z-50">
-        <button onclick="toggleTheme()" id="theme-toggle" 
-                class="theme-toggle-btn p-3 rounded-full shadow-lg">
-            <i id="theme-icon" class="fas fa-moon text-lg"></i>
-        </button>
+      <button
+        onclick="toggleTheme()"
+        id="theme-toggle"
+        class="theme-toggle-btn p-3 rounded-full shadow-lg"
+      >
+        <i id="theme-icon" class="fas fa-moon text-lg"></i>
+      </button>
     </div>
 
     <!-- Animated Background -->
     <div class="bg-decoration">
-        <div class="floating-shape"></div>
-        <div class="floating-shape"></div>
-        <div class="floating-shape"></div>
-        <div class="floating-shape"></div>
+      <div class="floating-shape"></div>
+      <div class="floating-shape"></div>
+      <div class="floating-shape"></div>
+      <div class="floating-shape"></div>
     </div>
 
     <!-- Main Container -->
     <div class="flex flex-col h-screen">
-        <!-- Header -->
-        <header class="header-bar glass-card-dark px-4 sm:px-6 py-4 shadow-lg flex items-center space-x-3 fade-in">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg icon-bounce">
-                <i class="fas fa-balance-scale text-white text-xl"></i>
-            </div>
-            <div class="flex-1">
-                <h1 class="text-lg sm:text-xl font-bold gradient-text font-['Kanit']">ที่ปรึกษากฎหมายทั่วไปและครอบครัว</h1>
-                <p class="text-xs header-subtext"><i class="fas fa-circle text-green-400 text-[8px] mr-1"></i>พร้อมให้บริการตลอด 24 ชั่วโมง</p>
-            </div>
-            <button onclick="showInfo()" class="action-btn p-3 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-all hover-lift">
-                <i class="fas fa-info-circle text-xl"></i>
+      <!-- Header -->
+      <header
+        class="header-bar glass-card-dark px-4 sm:px-6 py-4 shadow-lg flex items-center space-x-3 fade-in"
+      >
+        <div
+          class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg icon-bounce"
+        >
+          <i class="fas fa-balance-scale text-white text-xl"></i>
+        </div>
+        <div class="flex-1">
+          <h1 class="text-lg sm:text-xl font-bold gradient-text font-['Kanit']">
+            ที่ปรึกษากฎหมายทั่วไปและครอบครัว
+          </h1>
+          <p class="text-xs header-subtext">
+            <i class="fas fa-circle text-green-400 text-[8px] mr-1"></i
+            >พร้อมให้บริการตลอด 24 ชั่วโมง
+          </p>
+        </div>
+        <button
+          onclick="showInfo()"
+          class="action-btn p-3 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-all hover-lift"
+        >
+          <i class="fas fa-info-circle text-xl"></i>
+        </button>
+      </header>
+
+      <!-- Chat Messages Area -->
+      <div
+        id="chat-container"
+        class="flex-1 overflow-y-auto px-4 py-6 space-y-4"
+      >
+        <!-- Bot Welcome -->
+        <div class="flex items-end space-x-2 slide-up">
+          <div
+            class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg icon-pulse"
+          >
+            <i class="fas fa-robot text-white"></i>
+          </div>
+          <div
+            class="bot-message glass-card max-w-[75%] px-5 py-3 rounded-3xl shadow-lg hover-lift"
+          >
+            <p class="text-sm leading-relaxed">สวัสดีครับ! 👋</p>
+            <p class="text-sm leading-relaxed mt-2">
+              ผมคือผู้ช่วยด้านกฎหมาย
+              พร้อมตอบคำถามเกี่ยวกับ<b>กฎหมายทั่วไป</b>และ<b>กฎหมายครอบครัว</b>ให้คุณครับ
+            </p>
+            <p class="text-sm leading-relaxed mt-2">
+              💡 <i>คุณสามารถอัปโหลดเอกสารหรือพิมพ์คำถามได้เลยครับ</i>
+            </p>
+            <span class="text-[10px] opacity-60 mt-2 block">เมื่อสักครู่</span>
+          </div>
+        </div>
+
+        <!-- Quick Replies -->
+        <div
+          class="flex flex-wrap gap-2 ml-12 slide-up"
+          style="animation-delay: 0.2s"
+        >
+          <button
+            onclick="fillQuestion(this)"
+            class="quick-reply px-4 py-2 rounded-full text-xs font-medium shadow-md hover-lift"
+          >
+            <i class="fas fa-heart mr-1 text-pink-500"></i>
+            การจดทะเบียนสมรสต้องมีเงื่อนไขอย่างไร?
+          </button>
+          <button
+            onclick="fillQuestion(this)"
+            class="quick-reply px-4 py-2 rounded-full text-xs font-medium shadow-md hover-lift"
+          >
+            <i class="fas fa-baby mr-1 text-blue-500"></i>
+            การรับรองบุตรต้องทำอย่างไร?
+          </button>
+          <button
+            onclick="fillQuestion(this)"
+            class="quick-reply px-4 py-2 rounded-full text-xs font-medium shadow-md hover-lift"
+          >
+            <i class="fas fa-users mr-1 text-purple-500"></i>
+            การหย่าต้องทำขั้นตอนอย่างไร?
+          </button>
+          <button
+            onclick="fillQuestion(this)"
+            class="quick-reply px-4 py-2 rounded-full text-xs font-medium shadow-md hover-lift"
+          >
+            <i class="fas fa-piggy-bank mr-1 text-green-500"></i>
+            สิทธิในทรัพย์สินของคู่สมรสเป็นอย่างไร?
+          </button>
+          <button
+            onclick="fillQuestion(this)"
+            class="quick-reply px-4 py-2 rounded-full text-xs font-medium shadow-md hover-lift"
+          >
+            <i class="fas fa-file-contract mr-1 text-indigo-500"></i>
+            การทำพินัยกรรมต้องมีเงื่อนไขอย่างไร?
+          </button>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="input-area glass-card-dark border-t px-4 py-4 shadow-2xl">
+        <div class="flex items-end space-x-3 max-w-4xl mx-auto">
+          <button
+            onclick="document.getElementById('file-upload').click()"
+            class="action-btn p-3 rounded-full flex-shrink-0 hover-lift shadow-md"
+          >
+            <i class="fas fa-paperclip text-xl"></i>
+            <input
+              type="file"
+              id="file-upload"
+              class="hidden"
+              accept=".pdf,.png,.jpg,.jpeg"
+              onchange="handleFileUpload()"
+            />
+          </button>
+
+          <div
+            class="flex-1 message-input-wrapper glass-card rounded-3xl px-4 py-2 flex items-center shadow-lg"
+          >
+            <textarea
+              id="message-input"
+              rows="1"
+              class="message-input flex-1 resize-none outline-none text-sm"
+              placeholder="พิมพ์คำถามของคุณที่นี่..."
+              onkeydown="handleKeyPress(event)"
+            ></textarea>
+            <button
+              onclick="sendMessage()"
+              id="send-btn"
+              class="send-btn ml-2 p-2 rounded-full shadow-md"
+            >
+              <i class="fas fa-paper-plane"></i>
             </button>
-        </header>
-
-        <!-- Chat Messages Area -->
-        <div id="chat-container" class="flex-1 overflow-y-auto px-4 py-6 space-y-4">
-            
-            <!-- Bot Welcome -->
-            <div class="flex items-end space-x-2 slide-up">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg icon-pulse">
-                    <i class="fas fa-robot text-white"></i>
-                </div>
-                <div class="bot-message glass-card max-w-[75%] px-5 py-3 rounded-3xl shadow-lg hover-lift">
-                    <p class="text-sm leading-relaxed">สวัสดีครับ! 👋</p>
-                    <p class="text-sm leading-relaxed mt-2">ผมคือผู้ช่วยด้านกฎหมาย พร้อมตอบคำถามเกี่ยวกับ<b>กฎหมายทั่วไป</b>และ<b>กฎหมายครอบครัว</b>ให้คุณครับ</p>
-                    <p class="text-sm leading-relaxed mt-2">💡 <i>คุณสามารถอัปโหลดเอกสารหรือพิมพ์คำถามได้เลยครับ</i></p>
-                    <span class="text-[10px] opacity-60 mt-2 block">เมื่อสักครู่</span>
-                </div>
-            </div>
-
-            <!-- Quick Replies -->
-            <div class="flex flex-wrap gap-2 ml-12 slide-up" style="animation-delay: 0.2s">
-                <button onclick="fillQuestion(this)" class="quick-reply px-4 py-2 rounded-full text-xs font-medium shadow-md hover-lift">
-                    <i class="fas fa-heart mr-1 text-pink-500"></i> การจดทะเบียนสมรสต้องมีเงื่อนไขอย่างไร?
-                </button>
-                <button onclick="fillQuestion(this)" class="quick-reply px-4 py-2 rounded-full text-xs font-medium shadow-md hover-lift">
-                    <i class="fas fa-baby mr-1 text-blue-500"></i> การรับรองบุตรต้องทำอย่างไร?
-                </button>
-                <button onclick="fillQuestion(this)" class="quick-reply px-4 py-2 rounded-full text-xs font-medium shadow-md hover-lift">
-                    <i class="fas fa-users mr-1 text-purple-500"></i> การหย่าต้องทำขั้นตอนอย่างไร?
-                </button>
-            </div>
+          </div>
         </div>
-
-        <!-- Input Area -->
-        <div class="input-area glass-card-dark border-t px-4 py-4 shadow-2xl">
-            <div class="flex items-end space-x-3 max-w-4xl mx-auto">
-                <button onclick="document.getElementById('file-upload').click()" 
-                        class="action-btn p-3 rounded-full flex-shrink-0 hover-lift shadow-md">
-                    <i class="fas fa-paperclip text-xl"></i>
-                    <input type="file" id="file-upload" class="hidden" accept=".pdf,.png,.jpg,.jpeg" onchange="handleFileUpload()">
-                </button>
-                
-                <div class="flex-1 message-input-wrapper glass-card rounded-3xl px-4 py-2 flex items-center shadow-lg">
-                    <textarea id="message-input" rows="1" 
-                            class="message-input flex-1 resize-none outline-none text-sm" 
-                            placeholder="พิมพ์คำถามของคุณที่นี่..."
-                            onkeydown="handleKeyPress(event)"></textarea>
-                    <button onclick="sendMessage()" id="send-btn" class="send-btn ml-2 p-2 rounded-full shadow-md">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="text-center mt-2 text-[10px] text-content-secondary">
-                <i class="fas fa-info-circle mr-1"></i>กด Enter เพื่อส่งข้อความ หรือ Shift+Enter เพื่อขึ้นบรรทัดใหม่
-            </div>
+        <div class="text-center mt-2 text-[10px] text-content-secondary">
+          <i class="fas fa-info-circle mr-1"></i>กด Enter เพื่อส่งข้อความ หรือ
+          Shift+Enter เพื่อขึ้นบรรทัดใหม่
         </div>
+      </div>
     </div>
 
     <!-- Info Modal -->
-    <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 backdrop-blur-sm" onclick="hideInfo()">
-        <div class="modal-content glass-card-dark rounded-2xl p-6 m-4 max-w-md shadow-2xl scale-in" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold gradient-text font-['Kanit']">
-                    <i class="fas fa-info-circle mr-2"></i>เกี่ยวกับระบบ
-                </h3>
-                <button onclick="hideInfo()" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-all hover-lift">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
-            </div>
-            <div class="space-y-4 text-sm modal-text">
-                <div class="flex items-start space-x-3 p-3 glass-card rounded-xl">
-                    <i class="fas fa-balance-scale text-pink-500 text-xl mt-1"></i>
-                    <div>
-                        <p class="font-semibold mb-1">ให้คำปรึกษากฎหมาย</p>
-                        <p class="text-xs opacity-75">ระบบให้คำแนะนำเกี่ยวกับกฎหมายทั่วไปและกฎหมายครอบครัวไทย</p>
-                    </div>
-                </div>
-                <div class="flex items-start space-x-3 p-3 glass-card rounded-xl">
-                    <i class="fas fa-file-upload text-blue-500 text-xl mt-1"></i>
-                    <div>
-                        <p class="font-semibold mb-1">อัปโหลดเอกสาร</p>
-                        <p class="text-xs opacity-75">รองรับไฟล์ PDF และรูปภาพ (PNG, JPG) สำหรับวิเคราะห์เอกสารกฎหมาย</p>
-                    </div>
-                </div>
-                <div class="flex items-start space-x-3 p-3 glass-card rounded-xl">
-                    <i class="fas fa-user-tie text-purple-500 text-xl mt-1"></i>
-                    <div>
-                        <p class="font-semibold mb-1">แนะนำทนายความ</p>
-                        <p class="text-xs opacity-75">ระบบจะแนะนำทนายที่เชี่ยวชาญตรงกับปัญหาของคุณ</p>
-                    </div>
-                </div>
-                <div class="border-t border-separator pt-4 text-xs text-content-secondary glass-card p-3 rounded-xl">
-                    <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
-                    <b>ข้อควรระวัง:</b> ข้อมูลจากระบบเป็นเพียงคำแนะนำทั่วไป ไม่ใช่คำปรึกษาทางกฎหมาย สำหรับกรณีเฉพาะควรปรึกษาทนายความ
-                </div>
-            </div>
+    <div
+      id="info-modal"
+      class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 backdrop-blur-sm"
+      onclick="hideInfo()"
+    >
+      <div
+        class="modal-content glass-card-dark rounded-2xl p-6 m-4 max-w-md shadow-2xl scale-in"
+        onclick="event.stopPropagation()"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold gradient-text font-['Kanit']">
+            <i class="fas fa-info-circle mr-2"></i>เกี่ยวกับระบบ
+          </h3>
+          <button
+            onclick="hideInfo()"
+            class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-all hover-lift"
+          >
+            <i class="fas fa-times text-lg"></i>
+          </button>
         </div>
+        <div class="space-y-4 text-sm modal-text">
+          <div class="flex items-start space-x-3 p-3 glass-card rounded-xl">
+            <i class="fas fa-balance-scale text-pink-500 text-xl mt-1"></i>
+            <div>
+              <p class="font-semibold mb-1">ให้คำปรึกษากฎหมาย</p>
+              <p class="text-xs opacity-75">
+                ระบบให้คำแนะนำเกี่ยวกับกฎหมายทั่วไปและกฎหมายครอบครัวไทย
+              </p>
+            </div>
+          </div>
+          <div class="flex items-start space-x-3 p-3 glass-card rounded-xl">
+            <i class="fas fa-file-upload text-blue-500 text-xl mt-1"></i>
+            <div>
+              <p class="font-semibold mb-1">อัปโหลดเอกสาร</p>
+              <p class="text-xs opacity-75">
+                รองรับไฟล์ PDF และรูปภาพ (PNG, JPG) สำหรับวิเคราะห์เอกสารกฎหมาย
+              </p>
+            </div>
+          </div>
+          <div class="flex items-start space-x-3 p-3 glass-card rounded-xl">
+            <i class="fas fa-user-tie text-purple-500 text-xl mt-1"></i>
+            <div>
+              <p class="font-semibold mb-1">แนะนำทนายความ</p>
+              <p class="text-xs opacity-75">
+                ระบบจะแนะนำทนายที่เชี่ยวชาญตรงกับปัญหาของคุณ
+              </p>
+            </div>
+          </div>
+          <div
+            class="border-t border-separator pt-4 text-xs text-content-secondary glass-card p-3 rounded-xl"
+          >
+            <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
+            <b>ข้อควรระวัง:</b> ข้อมูลจากระบบเป็นเพียงคำแนะนำทั่วไป
+            ไม่ใช่คำปรึกษาทางกฎหมาย สำหรับกรณีเฉพาะควรปรึกษาทนายความ
+          </div>
+        </div>
+      </div>
     </div>
 
     <style>
-        * { box-sizing: border-box; }
-        
-        /* CSS Variables for theming */
-        :root {
-            --bg-primary: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
-            --bg-glass: rgba(255, 255, 255, 0.75);
-            --bg-glass-dark: rgba(255, 255, 255, 0.90);
-            --text-primary: #374151;
-            --text-secondary: #6b7280;
-            --border-color: #f9a8d4;
-            --bot-msg: rgba(255, 255, 255, 0.85);
-            --user-msg: linear-gradient(135deg, #ec4899, #f472b6);
-            --quick-reply-bg: rgba(255, 255, 255, 0.9);
-            --action-btn: #ec4899;
-            --input-bg: rgba(255, 255, 255, 0.8);
-        }
-        
-        .dark-theme {
-            --bg-primary: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
-            --bg-glass: rgba(31, 41, 55, 0.75);
-            --bg-glass-dark: rgba(31, 41, 55, 0.90);
-            --text-primary: #f9fafb;
-            --text-secondary: #d1d5db;
-            --border-color: #6b7280;
-            --bot-msg: rgba(55, 65, 81, 0.85);
-            --user-msg: linear-gradient(135deg, #ec4899, #f472b6);
-            --quick-reply-bg: rgba(75, 85, 99, 0.8);
-            --action-btn: #ec4899;
-            --input-bg: rgba(55, 65, 81, 0.8);
-        }
-        
-        body {
-            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-primary);
-            background-attachment: fixed;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Animated Background Elements */
-        .bg-decoration {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            overflow: hidden;
-        }
+      * {
+        box-sizing: border-box;
+      }
 
+      /* CSS Variables for theming */
+      :root {
+        --bg-primary: linear-gradient(
+          135deg,
+          #fdf2f8 0%,
+          #fce7f3 50%,
+          #fbcfe8 100%
+        );
+        --bg-glass: rgba(255, 255, 255, 0.75);
+        --bg-glass-dark: rgba(255, 255, 255, 0.9);
+        --text-primary: #374151;
+        --text-secondary: #6b7280;
+        --border-color: #f9a8d4;
+        --bot-msg: rgba(255, 255, 255, 0.85);
+        --user-msg: linear-gradient(135deg, #ec4899, #f472b6);
+        --quick-reply-bg: rgba(255, 255, 255, 0.9);
+        --action-btn: #ec4899;
+        --input-bg: rgba(255, 255, 255, 0.8);
+      }
+
+      .dark-theme {
+        --bg-primary: linear-gradient(
+          135deg,
+          #1f2937 0%,
+          #374151 50%,
+          #4b5563 100%
+        );
+        --bg-glass: rgba(31, 41, 55, 0.75);
+        --bg-glass-dark: rgba(31, 41, 55, 0.9);
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --border-color: #6b7280;
+        --bot-msg: rgba(55, 65, 81, 0.85);
+        --user-msg: linear-gradient(135deg, #ec4899, #f472b6);
+        --quick-reply-bg: rgba(75, 85, 99, 0.8);
+        --action-btn: #ec4899;
+        --input-bg: rgba(55, 65, 81, 0.8);
+      }
+
+      body {
+        font-family: "Sarabun", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: var(--bg-primary);
+        background-attachment: fixed;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Animated Background Elements */
+      .bg-decoration {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      .floating-shape {
+        position: absolute;
+        opacity: 0.1;
+        animation: float 20s infinite linear;
+      }
+
+      .dark-theme .floating-shape {
+        opacity: 0.05;
+      }
+
+      .floating-shape:nth-child(1) {
+        top: 10%;
+        left: 10%;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(45deg, #ec4899, #f472b6);
+        border-radius: 50%;
+        animation-delay: 0s;
+      }
+
+      .floating-shape:nth-child(2) {
+        top: 20%;
+        right: 15%;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(45deg, #a855f7, #c084fc);
+        border-radius: 20px;
+        animation-delay: -5s;
+      }
+
+      .floating-shape:nth-child(3) {
+        bottom: 30%;
+        left: 20%;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, #3b82f6, #60a5fa);
+        border-radius: 50%;
+        animation-delay: -10s;
+      }
+
+      .floating-shape:nth-child(4) {
+        bottom: 10%;
+        right: 25%;
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(45deg, #10b981, #34d399);
+        border-radius: 15px;
+        animation-delay: -15s;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        25% {
+          transform: translateY(-20px) rotate(90deg);
+        }
+        50% {
+          transform: translateY(-10px) rotate(180deg);
+        }
+        75% {
+          transform: translateY(-30px) rotate(270deg);
+        }
+        100% {
+          transform: translateY(0px) rotate(360deg);
+        }
+      }
+
+      /* Glass morphism */
+      .glass-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .glass-card-dark {
+        background: var(--bg-glass-dark);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .header-bar {
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .header-subtext {
+        color: var(--text-secondary);
+      }
+
+      .welcome-badge {
+        background: var(--quick-reply-bg);
+        backdrop-filter: blur(10px);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+      }
+
+      .bot-message {
+        background: var(--bot-msg);
+        backdrop-filter: blur(10px);
+        color: var(--text-primary);
+        border: 1px solid rgba(236, 72, 153, 0.2);
+      }
+
+      .user-message {
+        background: var(--user-msg);
+        color: white;
+        margin-left: auto;
+        border: none;
+      }
+
+      .quick-reply {
+        background: var(--quick-reply-bg);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(236, 72, 153, 0.3);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+      }
+
+      .quick-reply:hover {
+        transform: translateY(-2px) scale(1.05);
+        border-color: var(--action-btn);
+        background: linear-gradient(
+          135deg,
+          rgba(236, 72, 153, 0.1),
+          rgba(244, 114, 182, 0.1)
+        );
+        box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+      }
+
+      .input-area {
+        border-top-color: var(--border-color);
+      }
+
+      .message-input-wrapper {
+        background: var(--input-bg);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(236, 72, 153, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .message-input-wrapper:focus-within {
+        border-color: var(--action-btn);
+        box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+      }
+
+      .message-input {
+        background: transparent;
+        color: var(--text-primary);
+        max-height: 120px;
+      }
+
+      .message-input::placeholder {
+        color: var(--text-secondary);
+      }
+
+      .action-btn {
+        color: var(--action-btn);
+        transition: all 0.3s ease;
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+      }
+
+      .action-btn:hover {
+        transform: scale(1.1);
+        background: var(--quick-reply-bg);
+      }
+
+      .send-btn {
+        background: linear-gradient(135deg, #ec4899, #f472b6);
+        color: white;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .send-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .send-btn:hover::before {
+        left: 100%;
+      }
+
+      .send-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 20px rgba(236, 72, 153, 0.4);
+      }
+
+      .theme-toggle-btn {
+        background: var(--bg-glass-dark);
+        backdrop-filter: blur(20px);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+
+      .theme-toggle-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+      }
+
+      /* Text colors */
+      .text-content {
+        color: var(--text-primary);
+      }
+
+      .text-content-secondary {
+        color: var(--text-secondary);
+      }
+
+      .border-separator {
+        border-color: var(--border-color);
+      }
+
+      /* Animations */
+      .fade-in {
+        animation: fadeIn 0.8s ease-out;
+      }
+
+      .slide-up {
+        animation: slideUp 0.6s ease-out;
+      }
+
+      .scale-in {
+        animation: scaleIn 0.5s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Icon animations */
+      .icon-bounce {
+        animation: iconBounce 2s infinite;
+      }
+
+      @keyframes iconBounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+
+      .icon-pulse {
+        animation: iconPulse 2s infinite;
+      }
+
+      @keyframes iconPulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .hover-lift {
+        transition: all 0.3s ease;
+      }
+
+      .hover-lift:hover {
+        transform: translateY(-3px);
+      }
+
+      #chat-container::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      #chat-container::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+      }
+
+      #chat-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #ec4899, #f472b6);
+        border-radius: 10px;
+      }
+
+      #chat-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #db2777, #ec4899);
+      }
+
+      .dark-theme #chat-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .modal-content {
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .modal-text {
+        color: var(--text-primary);
+      }
+
+      .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 12px 16px;
+      }
+
+      .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background: var(--action-btn);
+        border-radius: 50%;
+        animation: typingDots 1.4s infinite;
+      }
+
+      .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes typingDots {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.7;
+        }
+        30% {
+          transform: translateY(-10px);
+          opacity: 1;
+        }
+      }
+
+      .message-animate {
+        animation: messageSlide 0.4s ease-out;
+      }
+
+      @keyframes messageSlide {
+        from {
+          opacity: 0;
+          transform: translateY(15px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #ec4899, #a855f7, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 200% 200%;
+        animation: gradientMove 4s ease infinite;
+      }
+
+      @keyframes gradientMove {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .dark-theme .gradient-text {
+        background: linear-gradient(135deg, #f472b6, #c084fc, #60a5fa);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .lawyer-card {
+        background: var(--quick-reply-bg);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(236, 72, 153, 0.3);
+        border-radius: 16px;
+        padding: 16px;
+        margin-top: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .lawyer-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(236, 72, 153, 0.2);
+      }
+
+      .lawyer-card a {
+        color: var(--action-btn);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .lawyer-card a:hover {
+        text-decoration: underline;
+      }
+
+      /* Mobile responsive */
+      @media (max-width: 640px) {
         .floating-shape {
-            position: absolute;
-            opacity: 0.1;
-            animation: float 20s infinite linear;
+          opacity: 0.05;
         }
 
         .dark-theme .floating-shape {
-            opacity: 0.05;
+          opacity: 0.02;
         }
 
-        .floating-shape:nth-child(1) {
-            top: 10%;
-            left: 10%;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(45deg, #ec4899, #f472b6);
-            border-radius: 50%;
-            animation-delay: 0s;
-        }
-
-        .floating-shape:nth-child(2) {
-            top: 20%;
-            right: 15%;
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(45deg, #a855f7, #c084fc);
-            border-radius: 20px;
-            animation-delay: -5s;
-        }
-
-        .floating-shape:nth-child(3) {
-            bottom: 30%;
-            left: 20%;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(45deg, #3b82f6, #60a5fa);
-            border-radius: 50%;
-            animation-delay: -10s;
-        }
-
-        .floating-shape:nth-child(4) {
-            bottom: 10%;
-            right: 25%;
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(45deg, #10b981, #34d399);
-            border-radius: 15px;
-            animation-delay: -15s;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px) rotate(0deg); }
-            25% { transform: translateY(-20px) rotate(90deg); }
-            50% { transform: translateY(-10px) rotate(180deg); }
-            75% { transform: translateY(-30px) rotate(270deg); }
-            100% { transform: translateY(0px) rotate(360deg); }
-        }
-        
-        /* Glass morphism */
-        .glass-card {
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .glass-card-dark {
-            background: var(--bg-glass-dark);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .header-bar {
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .header-subtext {
-            color: var(--text-secondary);
-        }
-        
-        .welcome-badge {
-            background: var(--quick-reply-bg);
-            backdrop-filter: blur(10px);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-        
-        .bot-message {
-            background: var(--bot-msg);
-            backdrop-filter: blur(10px);
-            color: var(--text-primary);
-            border: 1px solid rgba(236, 72, 153, 0.2);
-        }
-        
-        .user-message {
-            background: var(--user-msg);
-            color: white;
-            margin-left: auto;
-            border: none;
-        }
-        
-        .quick-reply {
-            background: var(--quick-reply-bg);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(236, 72, 153, 0.3);
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-        }
-        
-        .quick-reply:hover {
-            transform: translateY(-2px) scale(1.05);
-            border-color: var(--action-btn);
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(244, 114, 182, 0.1));
-            box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
-        }
-        
-        .input-area {
-            border-top-color: var(--border-color);
-        }
-        
-        .message-input-wrapper {
-            background: var(--input-bg);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(236, 72, 153, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .message-input-wrapper:focus-within {
-            border-color: var(--action-btn);
-            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
-        }
-        
-        .message-input {
-            background: transparent;
-            color: var(--text-primary);
-            max-height: 120px;
-        }
-        
-        .message-input::placeholder {
-            color: var(--text-secondary);
-        }
-        
-        .action-btn {
-            color: var(--action-btn);
-            transition: all 0.3s ease;
-            background: var(--bg-glass);
-            backdrop-filter: blur(10px);
-        }
-        
-        .action-btn:hover {
-            transform: scale(1.1);
-            background: var(--quick-reply-bg);
-        }
-        
-        .send-btn {
-            background: linear-gradient(135deg, #ec4899, #f472b6);
-            color: white;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .send-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .send-btn:hover::before {
-            left: 100%;
-        }
-        
-        .send-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(236, 72, 153, 0.4);
-        }
-        
         .theme-toggle-btn {
-            background: var(--bg-glass-dark);
-            backdrop-filter: blur(20px);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-        
-        .theme-toggle-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
-        }
-        
-        /* Text colors */
-        .text-content {
-            color: var(--text-primary);
-        }
-        
-        .text-content-secondary {
-            color: var(--text-secondary);
-        }
-        
-        .border-separator {
-            border-color: var(--border-color);
-        }
-        
-        /* Animations */
-        .fade-in {
-            animation: fadeIn 0.8s ease-out;
+          top: 16px;
+          right: 16px;
+          padding: 10px;
         }
 
-        .slide-up {
-            animation: slideUp 0.6s ease-out;
+        .theme-toggle-btn i {
+          font-size: 16px;
         }
-
-        .scale-in {
-            animation: scaleIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        /* Icon animations */
-        .icon-bounce {
-            animation: iconBounce 2s infinite;
-        }
-
-        @keyframes iconBounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-
-        .icon-pulse {
-            animation: iconPulse 2s infinite;
-        }
-
-        @keyframes iconPulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-        
-        .hover-lift {
-            transition: all 0.3s ease;
-        }
-
-        .hover-lift:hover {
-            transform: translateY(-3px);
-        }
-        
-        #chat-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        #chat-container::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-            border-radius: 10px;
-        }
-        
-        #chat-container::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #ec4899, #f472b6);
-            border-radius: 10px;
-        }
-        
-        #chat-container::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #db2777, #ec4899);
-        }
-        
-        .dark-theme #chat-container::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-        }
-        
-        .modal-content {
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal-text {
-            color: var(--text-primary);
-        }
-        
-        .typing-indicator {
-            display: flex;
-            gap: 4px;
-            padding: 12px 16px;
-        }
-        
-        .typing-indicator span {
-            width: 8px;
-            height: 8px;
-            background: var(--action-btn);
-            border-radius: 50%;
-            animation: typingDots 1.4s infinite;
-        }
-        
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes typingDots {
-            0%, 60%, 100% { 
-                transform: translateY(0); 
-                opacity: 0.7; 
-            }
-            30% { 
-                transform: translateY(-10px); 
-                opacity: 1; 
-            }
-        }
-        
-        .message-animate {
-            animation: messageSlide 0.4s ease-out;
-        }
-        
-        @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateY(15px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #ec4899, #a855f7, #3b82f6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-size: 200% 200%;
-            animation: gradientMove 4s ease infinite;
-        }
-
-        @keyframes gradientMove {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-        
-        .dark-theme .gradient-text {
-            background: linear-gradient(135deg, #f472b6, #c084fc, #60a5fa);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .lawyer-card {
-            background: var(--quick-reply-bg);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(236, 72, 153, 0.3);
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .lawyer-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(236, 72, 153, 0.2);
-        }
-        
-        .lawyer-card a {
-            color: var(--action-btn);
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .lawyer-card a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Mobile responsive */
-        @media (max-width: 640px) {
-            .floating-shape {
-                opacity: 0.05;
-            }
-            
-            .dark-theme .floating-shape {
-                opacity: 0.02;
-            }
-            
-            .theme-toggle-btn {
-                top: 16px;
-                right: 16px;
-                padding: 10px;
-            }
-            
-            .theme-toggle-btn i {
-                font-size: 16px;
-            }
-        }
+      }
     </style>
 
     <script>
-        let currentTheme = localStorage.getItem('theme') || 'light';
-        let awaitingConfirm = false;
-        
-        function applyTheme(theme) {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            if (theme === 'dark') {
-                body.classList.add('dark-theme');
-                icon.className = 'fas fa-sun text-lg';
-            } else {
-                body.classList.remove('dark-theme');
-                icon.className = 'fas fa-moon text-lg';
-            }
+      let currentTheme = localStorage.getItem("theme") || "light";
+      document.addEventListener("DOMContentLoaded", () =>
+        applyTheme(currentTheme)
+      );
+
+      function applyTheme(theme) {
+        const body = document.body;
+        const icon = document.getElementById("theme-icon");
+        if (theme === "dark") {
+          body.classList.add("dark-theme");
+          icon.className = "fas fa-sun text-lg";
+        } else {
+          body.classList.remove("dark-theme");
+          icon.className = "fas fa-moon text-lg";
         }
-        
-        function toggleTheme() {
-            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-            localStorage.setItem('theme', currentTheme);
-            applyTheme(currentTheme);
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => applyTheme(currentTheme));
-        
-        function showInfo() {
-            document.getElementById('info-modal').classList.remove('hidden');
-            document.getElementById('info-modal').classList.add('flex');
-        }
-        
-        function hideInfo() {
-            document.getElementById('info-modal').classList.add('hidden');
-            document.getElementById('info-modal').classList.remove('flex');
-        }
-        
-        function fillQuestion(btn) {
-            const text = btn.textContent.trim().replace(/^[^a-zA-Zก-๙]+/, '');
-            document.getElementById('message-input').value = text;
-            document.getElementById('message-input').focus();
-        }
-        
-        function scrollToBottom() {
-            const container = document.getElementById('chat-container');
-            setTimeout(() => {
-                container.scrollTo({
-                    top: container.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 100);
-        }
-        
-        function addMessage(text, isUser = false) {
-            const container = document.getElementById('chat-container');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message-animate flex items-end space-x-2' + (isUser ? ' justify-end' : '');
-            
-            const now = new Date();
-            const time = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-            
-            if (isUser) {
-                messageDiv.innerHTML = `
-                    <div class="user-message glass-card max-w-[75%] px-5 py-3 rounded-3xl shadow-lg hover-lift">
-                        <p class="text-sm leading-relaxed">${text}</p>
-                        <span class="text-[10px] opacity-80 mt-1 block text-right">${time}</span>
-                    </div>
-                `;
-            } else {
-                messageDiv.innerHTML = `
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <i class="fas fa-robot text-white"></i>
-                    </div>
-                    <div class="bot-message glass-card max-w-[75%] px-5 py-3 rounded-3xl shadow-lg hover-lift">
-                        <p class="text-sm leading-relaxed">${text}</p>
-                        <span class="text-[10px] opacity-60 mt-1 block">${time}</span>
-                    </div>
-                `;
-            }
-            
-            container.appendChild(messageDiv);
-            scrollToBottom();
-            return messageDiv;
-        }
-        
-        function showTyping() {
-            const container = document.getElementById('chat-container');
-            const typingDiv = document.createElement('div');
-            typingDiv.id = 'typing-indicator';
-            typingDiv.className = 'message-animate flex items-end space-x-2';
-            typingDiv.innerHTML = `
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg icon-pulse">
-                    <i class="fas fa-robot text-white"></i>
-                </div>
-                <div class="bot-message glass-card rounded-3xl shadow-lg typing-indicator">
-                    <span></span><span></span><span></span>
+      }
+
+      function toggleTheme() {
+        currentTheme = currentTheme === "light" ? "dark" : "light";
+        localStorage.setItem("theme", currentTheme);
+        applyTheme(currentTheme);
+      }
+
+      function showInfo() {
+        document.getElementById("info-modal").classList.remove("hidden");
+        document.getElementById("info-modal").classList.add("flex");
+      }
+
+      function hideInfo() {
+        document.getElementById("info-modal").classList.add("hidden");
+        document.getElementById("info-modal").classList.remove("flex");
+      }
+
+      function fillQuestion(btn) {
+        const text = btn.textContent.trim().replace(/^[^a-zA-Zก-๙]+/, "");
+        document.getElementById("message-input").value = text;
+        document.getElementById("message-input").focus();
+      }
+
+      function scrollToBottom() {
+        const container = document.getElementById("chat-container");
+        setTimeout(() => {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: "smooth",
+          });
+        }, 100);
+      }
+
+      function addMessage(text, isUser = false) {
+        const container = document.getElementById("chat-container");
+        const messageDiv = document.createElement("div");
+        messageDiv.className =
+          "message-animate flex items-end space-x-2" +
+          (isUser ? " justify-end" : "");
+
+        const now = new Date();
+        const time = now.toLocaleTimeString("th-TH", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        if (isUser) {
+          messageDiv.innerHTML = `
+                <div class="user-message glass-card max-w-[75%] px-5 py-3 rounded-3xl shadow-lg hover-lift">
+                    <p class="text-sm leading-relaxed">${text}</p>
+                    <span class="text-[10px] opacity-80 mt-1 block text-right">${time}</span>
                 </div>
             `;
-            container.appendChild(typingDiv);
-            scrollToBottom();
+        } else {
+          messageDiv.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <i class="fas fa-robot text-white"></i>
+                </div>
+                <div class="bot-message glass-card max-w-[75%] px-5 py-3 rounded-3xl shadow-lg hover-lift">
+                    <p class="text-sm leading-relaxed">${text}</p>
+                    <span class="text-[10px] opacity-60 mt-1 block">${time}</span>
+                </div>
+            `;
         }
-        
-        function hideTyping() {
-            const typing = document.getElementById('typing-indicator');
-            if (typing) typing.remove();
-        }
-        
-        async function sendMessage() {
-            const input = document.getElementById('message-input');
-            const text = input.value.trim();
-            if (!text) return;
-            
-            addMessage(text, true);
-            input.value = '';
-            input.style.height = 'auto';
-            
-            showTyping();
-            
-            try {
-                const res = await fetch('/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text })
-                });
-                
-                const data = await res.json();
-                hideTyping();
-                
-                if (data.type === 'answer') {
-                    addMessage(data.message);
-                    
-                    if (data.lawyers && data.lawyers.length > 0) {
-                        awaitingConfirm = true;
-                        const lawyer = data.lawyers[0];
-                        const container = document.getElementById('chat-container');
-                        const lawyerCard = document.createElement('div');
-                        lawyerCard.className = 'ml-12 max-w-[75%] message-animate';
-                        lawyerCard.innerHTML = `
-                            <div class="lawyer-card">
-                                <div class="flex items-center mb-3">
-                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mr-3 shadow-md">
-                                        <i class="fas fa-user-tie text-white"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-base">${lawyer.name}</p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400">ทนายความผู้เชี่ยวชาญ</p>
-                                    </div>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="flex items-center text-sm">
-                                        <i class="fas fa-star text-yellow-500 mr-2"></i>
-                                        <span class="text-gray-700 dark:text-gray-300">ความเชี่ยวชาญ: <b>${lawyer.expertise.join(', ')}</b></span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(lawyerCard);
-                        scrollToBottom();
-                    }
-                } else if (data.type === 'lawyer') {
-                    const lawyer = data.lawyer;
-                    const container = document.getElementById('chat-container');
-                    const contactCard = document.createElement('div');
-                    contactCard.className = 'ml-12 max-w-[75%] message-animate';
-                    contactCard.innerHTML = `
+
+        container.appendChild(messageDiv);
+        scrollToBottom();
+        return messageDiv;
+      }
+
+      function showTyping() {
+        const container = document.getElementById("chat-container");
+        const typingDiv = document.createElement("div");
+        typingDiv.id = "typing-indicator";
+        typingDiv.className = "message-animate flex items-end space-x-2";
+        typingDiv.innerHTML = `
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg icon-pulse">
+                <i class="fas fa-robot text-white"></i>
+            </div>
+            <div class="bot-message glass-card rounded-3xl shadow-lg typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+        `;
+        container.appendChild(typingDiv);
+        scrollToBottom();
+      }
+
+      function hideTyping() {
+        const typing = document.getElementById("typing-indicator");
+        if (typing) typing.remove();
+      }
+
+      async function sendMessage() {
+        const input = document.getElementById("message-input");
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage(text, true);
+        input.value = "";
+        input.style.height = "auto";
+        showTyping();
+
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text }),
+          });
+
+          const data = await res.json();
+          hideTyping();
+
+          if (data.type === "answer") {
+            addMessage(data.message);
+
+            // 🔹 เพิ่มปุ่ม "📞 ติดต่อทนาย"
+            if (data.lawyers && data.lawyers.length > 0) {
+              const lawyer = data.lawyers[0];
+              const container = document.getElementById("chat-container");
+              const lawyerCard = document.createElement("div");
+              lawyerCard.className = "ml-12 max-w-[75%] message-animate";
+              lawyerCard.innerHTML = `
                         <div class="lawyer-card">
-                            <div class="flex items-center mb-3 pb-3 border-b border-pink-200 dark:border-pink-800">
-                                <i class="fas fa-phone-alt text-green-500 text-xl mr-2"></i>
-                                <p class="font-bold text-base">ข้อมูลติดต่อทนายความ</p>
+                            <div class="flex items-center mb-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mr-3 shadow-md">
+                                    <i class="fas fa-user-tie text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-base">${
+                                      lawyer.name
+                                    }</p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">ทนายความผู้เชี่ยวชาญ</p>
+                                </div>
                             </div>
-                            <div class="space-y-3">
-                                <div class="flex items-center">
-                                    <i class="fas fa-user text-pink-500 w-6 mr-3"></i>
-                                    <span class="text-sm"><b>ชื่อ:</b> ${lawyer.name}</span>
+                            <div class="space-y-2 mb-2">
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                    <span class="text-gray-700 dark:text-gray-300">ความเชี่ยวชาญ: <b>${lawyer.expertise.join(
+                                      ", "
+                                    )}</b></span>
                                 </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-phone text-green-500 w-6 mr-3"></i>
-                                    <span class="text-sm"><b>โทร:</b> ${lawyer.phone}</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fab fa-facebook text-blue-600 w-6 mr-3"></i>
-                                    <a href="${lawyer.facebook}" target="_blank" class="text-sm hover:underline">เปิด Facebook</a>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fab fa-line text-green-600 w-6 mr-3"></i>
-                                    <a href="${lawyer.line}" target="_blank" class="text-sm hover:underline">เพิ่มเพื่อน LINE</a>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-globe text-indigo-500 w-6 mr-3"></i>
-                                    <a href="${lawyer.web}" target="_blank" class="text-sm hover:underline">เยี่ยมชมเว็บไซต์</a>
-                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button onclick='contactLawyer(${JSON.stringify(
+                                  lawyer
+                                )})'
+                                    class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow hover:scale-105 transition">
+                                    📞 ติดต่อทนาย
+                                </button>
                             </div>
                         </div>
                     `;
-                    container.appendChild(contactCard);
-                    scrollToBottom();
-                } else if (data.type === 'text' && data.message) {
-                    addMessage(data.message);
-                } else if (data.error) {
-                    addMessage(`❌ ${data.error}`);
+              container.appendChild(lawyerCard);
+              scrollToBottom();
+            }
+          } else if (data.type === "lawyer") {
+            showLawyerContact(data.lawyer);
+          } else if (data.error) {
+            addMessage(`❌ ${data.error}`);
+          }
+        } catch (err) {
+          hideTyping();
+          addMessage(
+            "❌ ขออภัย เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง"
+          );
+          console.error(err);
+        }
+      }
+
+      async function contactLawyer(lawyer) {
+        addMessage("📞 ขอข้อมูลติดต่อทนาย", true);
+        showTyping();
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "get_lawyer", lawyer }),
+          });
+          const data = await res.json();
+          hideTyping();
+          if (data.type === "lawyer") showLawyerContact(data.lawyer);
+        } catch (err) {
+          hideTyping();
+          addMessage("❌ ไม่สามารถดึงข้อมูลทนายได้");
+          console.error(err);
+        }
+      }
+
+      function showLawyerContact(lawyer) {
+        const container = document.getElementById("chat-container");
+        const card = document.createElement("div");
+        card.className = "ml-12 max-w-[75%] message-animate";
+        card.innerHTML = `
+            <div class="lawyer-card">
+                <div class="flex items-center mb-3 pb-2 border-b border-pink-200 dark:border-pink-800">
+                    <i class="fas fa-phone-alt text-green-500 text-xl mr-2"></i>
+                    <p class="font-bold text-base">ข้อมูลติดต่อทนายความ</p>
+                </div>
+                ${
+                  lawyer.phone
+                    ? `<div class="text-sm mb-1"><b>โทร:</b> ${lawyer.phone}</div>`
+                    : ""
                 }
-            } catch (err) {
-                hideTyping();
-                addMessage('❌ ขออภัย เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
-                console.error(err);
-            }
-        }
-        
-        async function handleFileUpload() {
-            const input = document.getElementById('file-upload');
-            const file = input.files[0];
-            if (!file) return;
-            
-            addMessage(`📎 อัปโหลดไฟล์: <b>${file.name}</b>`, true);
-            showTyping();
-            
-            try {
-                const fd = new FormData();
-                fd.append('file', file);
-                
-                const res = await fetch('/chat', {
-                    method: 'POST',
-                    body: fd
-                });
-                
-                const data = await res.json();
-                hideTyping();
-                
-                if (data.type === 'summary') {
-                    addMessage(`<div class="space-y-2"><div class="flex items-center mb-2 pb-2 border-b border-pink-200 dark:border-pink-800"><i class="fas fa-file-alt text-blue-500 text-lg mr-2"></i><b>สรุปเอกสาร</b></div><p>${data.summary}</p></div>`);
-                } else if (data.error) {
-                    addMessage(`❌ ${data.error}`);
+                ${
+                  lawyer.facebook
+                    ? `<div class="text-sm mb-1"><a href="${lawyer.facebook}" target="_blank" class="text-blue-600 hover:underline">Facebook</a></div>`
+                    : ""
                 }
-            } catch (err) {
-                hideTyping();
-                addMessage('❌ ไม่สามารถอัปโหลดไฟล์ได้ กรุณาลองใหม่อีกครั้ง');
-                console.error(err);
-            }
-            
-            input.value = '';
+                ${
+                  lawyer.line
+                    ? `<div class="text-sm mb-1"><a href="${lawyer.line}" target="_blank" class="text-green-600 hover:underline">LINE</a></div>`
+                    : ""
+                }
+                ${
+                  lawyer.web
+                    ? `<div class="text-sm"><a href="${lawyer.web}" target="_blank" class="text-indigo-600 hover:underline">เว็บไซต์</a></div>`
+                    : ""
+                }
+            </div>
+        `;
+        container.appendChild(card);
+        scrollToBottom();
+      }
+
+      async function handleFileUpload() {
+        const input = document.getElementById("file-upload");
+        const file = input.files[0];
+        if (!file) return;
+
+        addMessage(`📎 อัปโหลดไฟล์: <b>${file.name}</b>`, true);
+        showTyping();
+        try {
+          const fd = new FormData();
+          fd.append("file", file);
+          const res = await fetch("/chat", { method: "POST", body: fd });
+          const data = await res.json();
+          hideTyping();
+          if (data.type === "summary") {
+            addMessage(`<b>สรุปเอกสาร:</b><br>${data.summary}`);
+          } else if (data.error) {
+            addMessage(`❌ ${data.error}`);
+          }
+        } catch (err) {
+          hideTyping();
+          addMessage("❌ ไม่สามารถอัปโหลดไฟล์ได้");
         }
-        
-        function handleKeyPress(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
+        input.value = "";
+      }
+
+      function handleKeyPress(e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
         }
-        
-        // Auto-resize textarea
-        const textarea = document.getElementById('message-input');
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
+      }
+
+      const textarea = document.getElementById("message-input");
+      textarea.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = Math.min(this.scrollHeight, 120) + "px";
+      });
     </script>
-</body>
+  </body>
 </html>
