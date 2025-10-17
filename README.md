@@ -13,7 +13,7 @@
 
 4. สร้าง Virtual Environment (ถ้ายังไม่สร้าง)
 ```bash
-   create virtual environment python -m venv venv
+   python -m venv venv
 ```
 
 5. เข้าใช้งาน venv
