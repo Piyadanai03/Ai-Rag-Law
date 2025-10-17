@@ -1,58 +1,90 @@
 [
   {
-    "name": "ไพศาล",
-    "facebook": "https://www.facebook.com/paissan.soldier",
-    "line": "https://line.me/ti/p/~paissan.soldier",
-    "phone": "081-123-4567",
-    "web": "https://soldierthailand.com",
-    "expertise": "กฎหมายแพ่ง"
+    "name": "ทนายไพศาล เรืองฤทธิ์",
+    "facebook": "https://web.facebook.com/LawyerPaisan/?locale=th_TH&_rdc=1&_rdr#",
+    "line": " - ",
+    "phone": " 098-284-9202 เวลา 9.00 -17.00 น.จ-ศ ",
+    "email": " - ",
+    "expertise": ["กฎหมายทั่วไป", "กฎหมายอาญา", "กฎหมายปกครอง"]
   },
   {
-    "name": "สมชาย",
-    "facebook": "https://www.facebook.com/somchai.lawyer",
-    "line": "https://line.me/ti/p/~somchai.lawyer",
-    "phone": "082-234-5678",
-    "web": "https://somchailaw.com",
-    "expertise": ["กฎหมายครอบครัว", "กฎหมายมรดก"]
+    "name": "ทนายตั้ม ษิทรา เบี้ยบังเกิด",
+    "facebook": "http://facebook.com/sittralawfirm",
+    "line": "@sittra",
+    "phone": "089-167-9090",
+    "email": "admin@sittralawfirm.com",
+    "expertise": ["กฎหมายอาญา", "กฎหมายแพ่ง", "กฎหมายสื่อ"]
   },
   {
-    "name": "วิไล",
-    "facebook": "https://www.facebook.com/wilai.familylaw",
-    "line": "https://line.me/ti/p/~wilai.familylaw",
-    "phone": "083-345-6789",
-    "web": "https://wilailawfirm.com",
-    "expertise": ["กฎหมายครอบครัว", "การหย่าร้าง"]
+    "name": "ทนายเดชา กิตติวิทยานันท์",
+    "facebook": "https://web.facebook.com/dechalaw/?locale=th_TH&_rdc=1&_rdr#",
+    "line": " - ",
+    "phone": ["02-948-5700", "081-625-2161", "081-916-7810"],
+    "email": " - ",
+    "expertise": ["กฎหมายอาญา", "กฎหมายทุจริต", "กฎหมายเงิน"]
   },
   {
-    "name": "จารุวรรณ",
-    "facebook": "https://www.facebook.com/jaruwan.legal",
-    "line": "https://line.me/ti/p/~jaruwan.legal",
-    "phone": "084-456-7890",
-    "web": "https://jaruwanlaw.com",
-    "expertise": ["กฎหมายครอบครัว", "การเลี้ยงดูบุตร"]
+    "name": "ทนายรณณรงค์ แก้วเพ็ชร์",
+    "facebook": "https://web.facebook.com/FBaekx/?locale=th_TH&_rdc=1&_rdr#",
+    "line": "@freelaw",
+    "phone": "092-435-3393",
+    "email": " - ",
+    "expertise": ["กฎหมายอาญา", "กฎหมายสื่อ", "กฎหมายปกครอง"]
   },
   {
-    "name": "ธนพล",
-    "facebook": "https://www.facebook.com/thanapon.law",
-    "line": "https://line.me/ti/p/~thanapon.law",
-    "phone": "085-567-8901",
-    "web": "https://thanaponlegal.com",
-    "expertise": ["กฎหมายครอบครัว", "การรับรองบุตร"]
+    "name": "ทนายนิด้า ศรันยา หวังสุขเจริญ",
+    "facebook": "https://web.facebook.com/nidalawyer/?locale=th_TH&_rdc=1&_rdr#",
+    "line": "@nidalawyer",
+    "phone": "061-545-1639",
+    "email": "Nidalawyers@gmail.com",
+    "expertise": ["กฎหมายแพ่ง", "กฎหมายอาญา", "กฎหมายธุรกิจ"]
   },
   {
-    "name": "สุดารัตน์",
-    "facebook": "https://www.facebook.com/sudarat.family",
-    "line": "https://line.me/ti/p/~sudarat.family",
-    "phone": "086-678-9012",
-    "web": "https://sudaratlawfirm.com",
-    "expertise": ["กฎหมายครอบครัว", "การแบ่งสินสมรส"]
+    "name": "ทนายอนันต์ชัย ไชยเดช",
+    "facebook": "https://web.facebook.com/ananchailaw/?locale=th_TH&_rdc=1&_rdr#",
+    "line": "094-693-9362",
+    "phone": "094-693-9362 จันทร์-ศุกร์ เวลา 08:00-17:00",
+    "email": " - ",
+    "expertise": ["กฎหมายอาญา", "กฎหมายหมิ่นประมาท", "กฎหมายธุรกิจ"]
   },
   {
-    "name": "ปรีชา",
-    "facebook": "https://www.facebook.com/preecha.lawyer",
-    "line": "https://line.me/ti/p/~preecha.lawyer",
-    "phone": "087-789-0123",
-    "web": "https://preechalaw.com",
-    "expertise": ["กฎหมายครอบครัว", "การยกเลิกการรับรองบุตร"]
+    "name": "ทนายณัฐวุฒิ อักษร",
+    "facebook": "https://web.facebook.com/natthavudelaw",
+    "line": "lawyer37",
+    "phone": "098-827-5510",
+    "email": "",
+    "expertise": ["กฎหมายครอบครัว", "กฎหมายแพ่งและพาณิชย์"]
+  },
+  {
+    "name": "ทนายดร.นิ้ง ดร.ดิศวรบุตร เหล่าสุนทร",
+    "facebook": "https://web.facebook.com/disavorabuthlaw/",
+    "line": "https://line.me/ti/p/xMg0yFIfEM",
+    "phone": "062-652-4259",
+    "email": "disavorabuth@gmail.com",
+    "expertise": ["กฎหมายครอบครัว", "กฎหมายแพ่งและพาณิชย์", "กฎหมายทรัพย์สิน", "กฎหมายอาญา", "กฎหมายแรงงาน"]
+  },
+  {
+    "name": "ทนายธนู",
+    "facebook": "https://web.facebook.com/thanulaw/?_rdc=1&_rdr#",
+    "line": "@tn13",
+    "phone": "083-424-8098 เปิดบริการทุกวัน 7.00 - 20.00 น.",
+    "email": "thanuneomai@gmail.com",
+    "expertise": ["กฎหมายครอบครัว", "กฎหมายมรดก", "กฎหมายแพ่งทั่วไป", "กฎหมายคุ้มครองเด็กและครอบครัว", "กฎหมายศาลเยาวชนและครอบครัว"]
+  },
+  {
+    "name": "ทนายพัฒน์ คุยกฎหมาย",
+    "facebook": "https://web.facebook.com/Tanaichaipat/?_rdc=1&_rdr#",
+    "line": " - ",
+    "phone": "087-8133012 09:00 น. ถึง 19:00 น. ทุกวัน",
+    "email": "parksongju@hotmail.com",
+    "expertise": ["กฎหมายครอบครัว"]
+  },
+  {
+    "name": "ทนายโจ้",
+    "facebook": "https://web.facebook.com/jolawyer.w.s.lawfirm/",
+    "line": " - ",
+    "phone": ["020-842-929", "062-994-5566"],
+    "email": "W.S.LawFirm@hotmail.com",
+    "expertise": ["กฎหมายแพ่ง", "กฎหมายอาญา", "กฎหมายครอบครัว"]
   }
 ]
