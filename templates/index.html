@@ -994,12 +994,12 @@
                 }
                 ${
                   lawyer.line
-                    ? `<div class="text-sm mb-1"><a href="${lawyer.line}" target="_blank" class="text-green-600 hover:underline">LINE</a></div>`
+                    ? `<div class="text-sm mb-1"><b>Line ID:</b> ${lawyer.line}</div>`
                     : ""
                 }
                 ${
-                  lawyer.web
-                    ? `<div class="text-sm"><a href="${lawyer.web}" target="_blank" class="text-indigo-600 hover:underline">เว็บไซต์</a></div>`
+                  lawyer.email
+                    ? `<div class="text-sm mb-1"><b>Email:</b> ${lawyer.email}</div>`
                     : ""
                 }
             </div>
