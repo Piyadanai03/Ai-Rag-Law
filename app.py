@@ -15,6 +15,7 @@ from flask import Flask, request, jsonify, render_template, session
 # ===== CONFIG =====
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL","llama3.2")
+print(f"🚀 ใช้โมเดล: {OLLAMA_MODEL}")
 
 FOLDER_LAW = ["data", "family"]
 FOLDER_LAWYER = ["lawyer"]
