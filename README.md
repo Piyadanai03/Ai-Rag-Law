@@ -35,9 +35,13 @@ python app.py
 2. เปิดเว็บบราวเซอร์ไปที่ http://127.0.0.1:8000
 
 
+
 ## การเปิดใช้งานใน DOCKER ใช้ GPU ใช้การ์ดจอ Nvidia
 
-Ubuntu 20.04/22.04  
+ใช้ Ubuntu 20.04/22.04  
+```bash
+wsl --install -d Ubuntu-22.04
+```
 
 1. ตรวจ GPU บนเครื่อง
 ```bash
@@ -49,7 +53,7 @@ Ubuntu 20.04/22.04
 docker info | grep -i nvidia 
 ```
 
-# ( 3-7 ติดตั้ง NVIDIA Container Toolkit)
+# 3-7 ติดตั้ง NVIDIA Container Toolkit
 
 3. 
 ```bash 
